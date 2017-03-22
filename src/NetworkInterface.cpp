@@ -73,7 +73,7 @@ void NetworkInterface::setPhysicalAddress() {
     // Get interface physical address (MAC)
     status = ioctl(socketDescriptor, SIOCGIFHWADDR, &interfaceStruct);
     if (status == 0) {
-        memcpy(physicalAddress, interfaceStruct.ifr_hwaddr.sa_data, 6);
+        memcpy(physicalAddress.data(), interfaceStruct.ifr_hwaddr.sa_data, 6);
     }
 
     close(socketDescriptor);
@@ -86,7 +86,7 @@ const in_addr &NetworkInterface::getAddress() const {
     return address;
 }
 
-const u_int8_t *NetworkInterface::getPhysicalAddress() const {
+const array<u_int8_t, ETH_ALEN> &NetworkInterface::getPhysicalAddress() const {
     return physicalAddress;
 }
 

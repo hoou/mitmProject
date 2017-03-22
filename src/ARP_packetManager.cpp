@@ -1,9 +1,7 @@
 #include <pcap.h>
 #include <stdexcept>
 #include <thread>
-#include <iostream>
 #include "ARP_packetManager.h"
-#include "Utils.h"
 
 mutex ARP_packetManager::mtx;
 NetworkInterface *ARP_packetManager::networkInterface;

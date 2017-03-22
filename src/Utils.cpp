@@ -1,6 +1,7 @@
 #include <bitset>
 #include <cmath>
 #include <sstream>
+#include <cstring>
 #include "Utils.h"
 
 unsigned long long Utils::calculateNumberOfAvailableHosts(in_addr subnetMask) {
@@ -14,13 +15,23 @@ in_addr Utils::getSubnetAddress(in_addr hostAddress, in_addr subnetMask) {
     return subnetAddress;
 }
 
-string Utils::convertIPv4addressToString(const u_int8_t *address) {
-    stringstream ss;
-    ss << (int) address[0] << "." << (int) address[1] << "." << (int) address[2] << "." << (int) address[3];
-    return ss.str();
+array<u_int8_t, (size_t) ETH_ALEN> Utils::constructMacAddressFromRawData(const u_int8_t *data) {
+    array<u_int8_t, ETH_ALEN> address;
+    memcpy(address.data(), data, sizeof(u_int8_t) * ETH_ALEN);
+    return address;
 }
 
-string Utils::formatMacAddress(const u_int8_t *address, MacAddressFormat format) {
+in_addr Utils::constructIpv4addressFromRawData(const u_int8_t *data) {
+    stringstream ss;
+    in_addr constructedAddress;
+
+    ss << (int) data[0] << "." << (int) data[1] << "." << (int) data[2] << "." << (int) data[3];
+    inet_aton(ss.str().c_str(), &constructedAddress);
+
+    return constructedAddress;
+}
+
+string Utils::formatMacAddress(array<u_int8_t, ETH_ALEN> address, MacAddressFormat format) {
     bool hasSixGroups;
     string delimiter;
     stringstream ss;
@@ -57,8 +68,11 @@ string Utils::formatMacAddress(const u_int8_t *address, MacAddressFormat format)
     return string(buffer);
 }
 
-in_addr Utils::constructIPv4addressFromString(string address) {
-    in_addr constructedAddress;
-    inet_aton(address.c_str(), &constructedAddress);
-    return constructedAddress;
+bool Utils::isZeroMacAddress(array<u_int8_t, (size_t) ETH_ALEN> address) {
+    return address.at(0) == 0 &&
+           address.at(1) == 0 &&
+           address.at(2) == 0 &&
+           address.at(3) == 0 &&
+           address.at(4) == 0 &&
+           address.at(5) == 0;
 }

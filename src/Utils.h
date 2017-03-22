@@ -3,8 +3,9 @@
 
 #include <pcap.h>
 #include <arpa/inet.h>
-#include <linux/if_ether.h>
 #include <string>
+#include <array>
+#include <linux/if_ether.h>
 
 using namespace std;
 
@@ -20,11 +21,13 @@ public:
 
     static in_addr getSubnetAddress(in_addr hostAddress, in_addr subnetMask);
 
-    static in_addr constructIPv4addressFromString(string address);
+    static array<u_int8_t, (size_t) ETH_ALEN> constructMacAddressFromRawData(const u_int8_t *data);
 
-    static string convertIPv4addressToString(const u_int8_t *address);
+    static in_addr constructIpv4addressFromRawData(const u_int8_t *data);
 
-    static string formatMacAddress(const u_int8_t *address, MacAddressFormat format);
+    static string formatMacAddress(array<u_int8_t, (size_t) ETH_ALEN> address, MacAddressFormat format);
+
+    static bool isZeroMacAddress(array<u_int8_t, (size_t) ETH_ALEN> address);
 };
 
 

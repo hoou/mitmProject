@@ -7,7 +7,7 @@
 
 class HostsList {
 private:
-    map<string, vector<in_addr>> macAddressMap;
+    map<array<u_int8_t , ETH_ALEN>, vector<in_addr>> macAddressMap;
 
 public:
     HostsList();

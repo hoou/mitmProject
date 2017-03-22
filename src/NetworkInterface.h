@@ -5,6 +5,7 @@
 #include <pcap.h>
 #include <linux/if_ether.h>
 #include <vector>
+#include <array>
 #include "Subnet.h"
 
 using namespace std;
@@ -13,7 +14,7 @@ class NetworkInterface {
 private:
     string name;
     in_addr address;
-    u_int8_t physicalAddress[ETH_ALEN];
+    array<u_int8_t, ETH_ALEN> physicalAddress;
     Subnet *subnet = nullptr;
 
     in_addr setAddressAndGetMask();
@@ -29,7 +30,7 @@ public:
 
     const in_addr &getAddress() const;
 
-    const u_int8_t *getPhysicalAddress() const;
+    const array<u_int8_t, (size_t) ETH_ALEN> &getPhysicalAddress() const;
 
     const string &getName() const;
 

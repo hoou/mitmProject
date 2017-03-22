@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <netinet/in.h>
 #include <string>
+#include <array>
 
 using namespace std;
 
@@ -16,31 +17,41 @@ private:
     static const size_t frameSize = sizeof(struct ether_header) + sizeof(struct ether_arp);
     unsigned char frame[frameSize];
 
-    void constructEthernetHeader(const u_int8_t *source, const u_int8_t *destination = nullptr);
+    ARP_packet();
 
-    void
-    constructArpRequest(const u_int8_t *senderHardwareAddr, in_addr senderProtocolAddr, in_addr targetProtocolAddr);
+    void constructEthernetHeader(
+            array<u_int8_t, ETH_ALEN> source,
+            array<u_int8_t, ETH_ALEN> destination = array<u_int8_t, ETH_ALEN>()
+    );
+
+    void constructArpRequest(
+            array<u_int8_t, ETH_ALEN> senderHardwareAddr,
+            in_addr senderProtocolAddr,
+            in_addr targetProtocolAddr
+    );
 
     void constructContiguousFrame();
-
-    ARP_packet();
 
 public:
     static ARP_packet constructFromRawData(const u_char *data);
 
-    static ARP_packet request(const u_int8_t *senderHardwareAddr,in_addr senderProtocolAddr, in_addr targetProtocolAddr);
+    static ARP_packet request(
+            array<u_int8_t, ETH_ALEN> senderHardwareAddr,
+            in_addr senderProtocolAddr,
+            in_addr targetProtocolAddr
+    );
 
     const unsigned char *getFrame() const;
 
     static const size_t getFrameSize();
 
-    const u_int8_t *getSenderHardwareAddr();
+    array<u_int8_t, ETH_ALEN> getSenderHardwareAddr();
 
-    const u_int8_t *getSenderProtocolAddr();
+    in_addr getSenderProtocolAddr();
 
-    const u_int8_t *getTargetHardwareAddr();
+    array<u_int8_t, ETH_ALEN> getTargetHardwareAddr();
 
-    const u_int8_t *getTargetProtocolAddr();
+    in_addr getTargetProtocolAddr();
 
     unsigned short getArpType();
 };

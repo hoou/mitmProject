@@ -1,8 +1,5 @@
 #include <iostream>
-#include <fstream>
-
 #include <libxml/parser.h>
-#include <libxml/tree.h>
 
 #include "HostsList.h"
 #include "Utils.h"
@@ -15,35 +12,27 @@ HostsList::HostsList(vector<ARP_packet> arpPackets) {
 
 void HostsList::insert(vector<ARP_packet> arpPackets) {
     for (auto &arpPacket : arpPackets) {
-        map<string, vector<in_addr>>::iterator it;
+        map<array<u_int8_t, ETH_ALEN>, vector<in_addr>>::iterator it;
 
-        const string &senderMacAddress = Utils::formatMacAddress(
-                arpPacket.getSenderHardwareAddr(),
-                three_groups_of_four_hexa_digits_sep_dot
-        );
-        if (senderMacAddress != "0000.0000.0000") {
-            it = macAddressMap.find(senderMacAddress);
+        if (!Utils::isZeroMacAddress(arpPacket.getSenderHardwareAddr())) {
+            it = macAddressMap.find(arpPacket.getSenderHardwareAddr());
 
             if (it == macAddressMap.end()) {
-                in_addr address;
-                inet_aton(Utils::convertIPv4addressToString(arpPacket.getSenderProtocolAddr()).c_str(), &address);
-                vector<in_addr> addresses{address};
-                macAddressMap.insert(pair<string, vector<in_addr>>(senderMacAddress, addresses));
+                vector<in_addr> addresses{arpPacket.getSenderProtocolAddr()};
+                macAddressMap.insert(
+                        pair<array<u_int8_t, ETH_ALEN>, vector<in_addr>>(arpPacket.getSenderHardwareAddr(), addresses)
+                );
             }
         }
 
-        const string &targetMacAddress = Utils::formatMacAddress(
-                arpPacket.getTargetHardwareAddr(),
-                three_groups_of_four_hexa_digits_sep_dot
-        );
-        if (targetMacAddress != "0000.0000.0000") {
-            it = macAddressMap.find(targetMacAddress);
+        if (!Utils::isZeroMacAddress(arpPacket.getTargetHardwareAddr())) {
+            it = macAddressMap.find(arpPacket.getTargetHardwareAddr());
 
             if (it == macAddressMap.end()) {
-                in_addr address;
-                inet_aton(Utils::convertIPv4addressToString(arpPacket.getTargetProtocolAddr()).c_str(), &address);
-                vector<in_addr> addresses{address};
-                macAddressMap.insert(pair<string, vector<in_addr>>(targetMacAddress, addresses));
+                vector<in_addr> addresses{arpPacket.getTargetProtocolAddr()};
+                macAddressMap.insert(
+                        pair<array<u_int8_t, ETH_ALEN>, vector<in_addr>>(arpPacket.getTargetHardwareAddr(), addresses)
+                );
             }
         }
     }
@@ -61,7 +50,10 @@ void HostsList::exportToXML(string filename) {
 
     for (auto &host : macAddressMap) {
         xmlNodePtr pHostNode = xmlNewChild(pRootNode, NULL, BAD_CAST "host", NULL);
-        xmlNewProp(pHostNode, BAD_CAST "mac", BAD_CAST host.first.c_str());
+        xmlNewProp(
+                pHostNode, BAD_CAST "mac",
+                BAD_CAST Utils::formatMacAddress(host.first, three_groups_of_four_hexa_digits_sep_dot).c_str()
+        );
         for (auto &address : host.second) {
             xmlNewChild(pHostNode, NULL, BAD_CAST "ipv4", BAD_CAST inet_ntoa(address));
         }

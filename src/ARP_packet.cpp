@@ -5,7 +5,11 @@
 ARP_packet::ARP_packet() {}
 
 ARP_packet
-ARP_packet::request(const u_int8_t *senderHardwareAddr, in_addr senderProtocolAddr, in_addr targetProtocolAddr) {
+ARP_packet::request(
+        array<u_int8_t, ETH_ALEN> senderHardwareAddr,
+        in_addr senderProtocolAddr,
+        in_addr targetProtocolAddr
+) {
     /* http://www.microhowto.info/howto/send_an_arbitrary_ethernet_frame_using_libpcap/send_arp.c */
     ARP_packet arpPacket;
     arpPacket.constructEthernetHeader(senderHardwareAddr);
@@ -23,8 +27,8 @@ ARP_packet ARP_packet::constructFromRawData(const u_char *data) {
 }
 
 void
-ARP_packet::constructArpRequest(const u_int8_t *senderHardwareAddr, in_addr senderProtocolAddr,
-                               in_addr targetProtocolAddr) {
+ARP_packet::constructArpRequest(array<u_int8_t, ETH_ALEN> senderHardwareAddr, in_addr senderProtocolAddr,
+                                in_addr targetProtocolAddr) {
     /* APR header */
     ARP_struct.ea_hdr.ar_hrd = htons(ARPHRD_ETHER);
     ARP_struct.ea_hdr.ar_pro = htons(ETH_P_IP);
@@ -33,7 +37,7 @@ ARP_packet::constructArpRequest(const u_int8_t *senderHardwareAddr, in_addr send
     ARP_struct.ea_hdr.ar_op = htons(ARPOP_REQUEST);
 
     /* Sender hardware address */
-    memcpy(&ARP_struct.arp_sha, senderHardwareAddr, sizeof(ARP_struct.arp_sha));
+    memcpy(&ARP_struct.arp_sha, senderHardwareAddr.data(), sizeof(ARP_struct.arp_sha));
 
     /* Sender protocol address */
     memcpy(&ARP_struct.arp_spa, &senderProtocolAddr.s_addr, sizeof(ARP_struct.arp_spa));
@@ -45,15 +49,15 @@ ARP_packet::constructArpRequest(const u_int8_t *senderHardwareAddr, in_addr send
     memcpy(&ARP_struct.arp_tpa, &targetProtocolAddr.s_addr, sizeof(ARP_struct.arp_tpa));
 }
 
-void ARP_packet::constructEthernetHeader(const u_int8_t *source, const u_int8_t *destination) {
+void ARP_packet::constructEthernetHeader(array<u_int8_t, ETH_ALEN> source, array<u_int8_t, ETH_ALEN> destination) {
     ethernetHeader.ether_type = htons(ETH_P_ARP);
-    memcpy(ethernetHeader.ether_shost, source, ETH_ALEN);
+    memcpy(ethernetHeader.ether_shost, source.data(), ETH_ALEN);
 
     /* If destination address not set, send broadcast */
-    if (!destination) {
+    if (Utils::isZeroMacAddress(destination)) {
         memset(ethernetHeader.ether_dhost, 0xff, ETH_ALEN);
     } else {
-        memcpy(ethernetHeader.ether_dhost, destination, ETH_ALEN);
+        memcpy(ethernetHeader.ether_dhost, destination.data(), ETH_ALEN);
     }
 }
 
@@ -70,20 +74,20 @@ const size_t ARP_packet::getFrameSize() {
     return frameSize;
 }
 
-const u_int8_t *ARP_packet::getSenderHardwareAddr() {
-    return ARP_struct.arp_sha;
+array<u_int8_t, ETH_ALEN> ARP_packet::getSenderHardwareAddr() {
+    return Utils::constructMacAddressFromRawData(ARP_struct.arp_sha);
 }
 
-const u_int8_t *ARP_packet::getSenderProtocolAddr() {
-    return ARP_struct.arp_spa;
+in_addr ARP_packet::getSenderProtocolAddr() {
+    return Utils::constructIpv4addressFromRawData(ARP_struct.arp_spa);
 }
 
-const u_int8_t *ARP_packet::getTargetHardwareAddr() {
-    return ARP_struct.arp_tha;
+array<u_int8_t, ETH_ALEN> ARP_packet::getTargetHardwareAddr() {
+    return Utils::constructMacAddressFromRawData(ARP_struct.arp_tha);
 }
 
-const u_int8_t *ARP_packet::getTargetProtocolAddr() {
-    return ARP_struct.arp_tpa;
+in_addr ARP_packet::getTargetProtocolAddr() {
+    return Utils::constructIpv4addressFromRawData(ARP_struct.arp_tpa);
 }
 
 unsigned short ARP_packet::getArpType() {
