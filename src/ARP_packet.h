@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <string>
 #include <array>
+#include "Utils.h"
 
 using namespace std;
 
@@ -19,37 +20,26 @@ private:
 
     ARP_packet();
 
-    void constructEthernetHeader(
-            array<u_int8_t, ETH_ALEN> source,
-            array<u_int8_t, ETH_ALEN> destination = array<u_int8_t, ETH_ALEN>()
-    );
+    void constructEthernetHeader(mac_addr source, mac_addr destination = mac_addr());
 
-    void constructArpRequest(
-            array<u_int8_t, ETH_ALEN> senderHardwareAddr,
-            in_addr senderProtocolAddr,
-            in_addr targetProtocolAddr
-    );
+    void constructArpRequest(mac_addr senderHardwareAddr, in_addr senderProtocolAddr, in_addr targetProtocolAddr);
 
     void constructContiguousFrame();
 
 public:
     static ARP_packet constructFromRawData(const u_char *data);
 
-    static ARP_packet request(
-            array<u_int8_t, ETH_ALEN> senderHardwareAddr,
-            in_addr senderProtocolAddr,
-            in_addr targetProtocolAddr
-    );
+    static ARP_packet request(mac_addr senderHardwareAddr, in_addr senderProtocolAddr, in_addr targetProtocolAddr);
 
     const unsigned char *getFrame() const;
 
     static const size_t getFrameSize();
 
-    array<u_int8_t, ETH_ALEN> getSenderHardwareAddr();
+    mac_addr getSenderHardwareAddr();
 
     in_addr getSenderProtocolAddr();
 
-    array<u_int8_t, ETH_ALEN> getTargetHardwareAddr();
+    mac_addr getTargetHardwareAddr();
 
     in_addr getTargetProtocolAddr();
 

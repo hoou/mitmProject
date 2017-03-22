@@ -4,7 +4,6 @@
 #include <sys/ioctl.h>
 #include <cstring>
 #include "NetworkInterface.h"
-#include "Utils.h"
 
 NetworkInterface::NetworkInterface(const string &name) : name(name) {
     in_addr mask;
@@ -86,7 +85,7 @@ const in_addr &NetworkInterface::getAddress() const {
     return address;
 }
 
-const array<u_int8_t, ETH_ALEN> &NetworkInterface::getPhysicalAddress() const {
+const mac_addr &NetworkInterface::getPhysicalAddress() const {
     return physicalAddress;
 }
 

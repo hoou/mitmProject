@@ -15,19 +15,21 @@ enum MacAddressFormat {
     three_groups_of_four_hexa_digits_sep_dot // e.g. 0123.4567.89ab
 };
 
+typedef array<u_int8_t, (size_t) ETH_ALEN> mac_addr;
+
 class Utils {
 public:
     static unsigned long long calculateNumberOfAvailableHosts(in_addr subnetMask);
 
     static in_addr getSubnetAddress(in_addr hostAddress, in_addr subnetMask);
 
-    static array<u_int8_t, (size_t) ETH_ALEN> constructMacAddressFromRawData(const u_int8_t *data);
+    static mac_addr constructMacAddressFromRawData(const u_int8_t *data);
 
     static in_addr constructIpv4addressFromRawData(const u_int8_t *data);
 
-    static string formatMacAddress(array<u_int8_t, (size_t) ETH_ALEN> address, MacAddressFormat format);
+    static string formatMacAddress(mac_addr address, MacAddressFormat format);
 
-    static bool isZeroMacAddress(array<u_int8_t, (size_t) ETH_ALEN> address);
+    static bool isZeroMacAddress(mac_addr address);
 };
 
 

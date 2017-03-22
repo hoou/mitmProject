@@ -1,15 +1,9 @@
 #include "ARP_packet.h"
-#include "Utils.h"
 #include <cstring>
 
 ARP_packet::ARP_packet() {}
 
-ARP_packet
-ARP_packet::request(
-        array<u_int8_t, ETH_ALEN> senderHardwareAddr,
-        in_addr senderProtocolAddr,
-        in_addr targetProtocolAddr
-) {
+ARP_packet ARP_packet::request(mac_addr senderHardwareAddr, in_addr senderProtocolAddr, in_addr targetProtocolAddr) {
     /* http://www.microhowto.info/howto/send_an_arbitrary_ethernet_frame_using_libpcap/send_arp.c */
     ARP_packet arpPacket;
     arpPacket.constructEthernetHeader(senderHardwareAddr);
@@ -26,9 +20,9 @@ ARP_packet ARP_packet::constructFromRawData(const u_char *data) {
     return arpPacket;
 }
 
-void
-ARP_packet::constructArpRequest(array<u_int8_t, ETH_ALEN> senderHardwareAddr, in_addr senderProtocolAddr,
-                                in_addr targetProtocolAddr) {
+void ARP_packet::constructArpRequest(
+        mac_addr senderHardwareAddr, in_addr senderProtocolAddr, in_addr targetProtocolAddr
+) {
     /* APR header */
     ARP_struct.ea_hdr.ar_hrd = htons(ARPHRD_ETHER);
     ARP_struct.ea_hdr.ar_pro = htons(ETH_P_IP);
@@ -49,7 +43,7 @@ ARP_packet::constructArpRequest(array<u_int8_t, ETH_ALEN> senderHardwareAddr, in
     memcpy(&ARP_struct.arp_tpa, &targetProtocolAddr.s_addr, sizeof(ARP_struct.arp_tpa));
 }
 
-void ARP_packet::constructEthernetHeader(array<u_int8_t, ETH_ALEN> source, array<u_int8_t, ETH_ALEN> destination) {
+void ARP_packet::constructEthernetHeader(mac_addr source, mac_addr destination) {
     ethernetHeader.ether_type = htons(ETH_P_ARP);
     memcpy(ethernetHeader.ether_shost, source.data(), ETH_ALEN);
 
@@ -74,7 +68,7 @@ const size_t ARP_packet::getFrameSize() {
     return frameSize;
 }
 
-array<u_int8_t, ETH_ALEN> ARP_packet::getSenderHardwareAddr() {
+mac_addr ARP_packet::getSenderHardwareAddr() {
     return Utils::constructMacAddressFromRawData(ARP_struct.arp_sha);
 }
 
@@ -82,7 +76,7 @@ in_addr ARP_packet::getSenderProtocolAddr() {
     return Utils::constructIpv4addressFromRawData(ARP_struct.arp_spa);
 }
 
-array<u_int8_t, ETH_ALEN> ARP_packet::getTargetHardwareAddr() {
+mac_addr ARP_packet::getTargetHardwareAddr() {
     return Utils::constructMacAddressFromRawData(ARP_struct.arp_tha);
 }
 

@@ -15,8 +15,8 @@ in_addr Utils::getSubnetAddress(in_addr hostAddress, in_addr subnetMask) {
     return subnetAddress;
 }
 
-array<u_int8_t, (size_t) ETH_ALEN> Utils::constructMacAddressFromRawData(const u_int8_t *data) {
-    array<u_int8_t, ETH_ALEN> address;
+mac_addr Utils::constructMacAddressFromRawData(const u_int8_t *data) {
+    mac_addr address;
     memcpy(address.data(), data, sizeof(u_int8_t) * ETH_ALEN);
     return address;
 }
@@ -31,7 +31,7 @@ in_addr Utils::constructIpv4addressFromRawData(const u_int8_t *data) {
     return constructedAddress;
 }
 
-string Utils::formatMacAddress(array<u_int8_t, ETH_ALEN> address, MacAddressFormat format) {
+string Utils::formatMacAddress(mac_addr address, MacAddressFormat format) {
     bool hasSixGroups;
     string delimiter;
     stringstream ss;
@@ -68,7 +68,7 @@ string Utils::formatMacAddress(array<u_int8_t, ETH_ALEN> address, MacAddressForm
     return string(buffer);
 }
 
-bool Utils::isZeroMacAddress(array<u_int8_t, (size_t) ETH_ALEN> address) {
+bool Utils::isZeroMacAddress(mac_addr address) {
     return address.at(0) == 0 &&
            address.at(1) == 0 &&
            address.at(2) == 0 &&

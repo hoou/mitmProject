@@ -2,7 +2,6 @@
 #include <libxml/parser.h>
 
 #include "HostsList.h"
-#include "Utils.h"
 
 HostsList::HostsList() {}
 
@@ -12,16 +11,14 @@ HostsList::HostsList(vector<ARP_packet> arpPackets) {
 
 void HostsList::insert(vector<ARP_packet> arpPackets) {
     for (auto &arpPacket : arpPackets) {
-        map<array<u_int8_t, ETH_ALEN>, vector<in_addr>>::iterator it;
+        map<mac_addr, vector<in_addr>>::iterator it;
 
         if (!Utils::isZeroMacAddress(arpPacket.getSenderHardwareAddr())) {
             it = macAddressMap.find(arpPacket.getSenderHardwareAddr());
 
             if (it == macAddressMap.end()) {
                 vector<in_addr> addresses{arpPacket.getSenderProtocolAddr()};
-                macAddressMap.insert(
-                        pair<array<u_int8_t, ETH_ALEN>, vector<in_addr>>(arpPacket.getSenderHardwareAddr(), addresses)
-                );
+                macAddressMap.insert(pair<mac_addr, vector<in_addr>>(arpPacket.getSenderHardwareAddr(), addresses));
             }
         }
 
@@ -30,9 +27,7 @@ void HostsList::insert(vector<ARP_packet> arpPackets) {
 
             if (it == macAddressMap.end()) {
                 vector<in_addr> addresses{arpPacket.getTargetProtocolAddr()};
-                macAddressMap.insert(
-                        pair<array<u_int8_t, ETH_ALEN>, vector<in_addr>>(arpPacket.getTargetHardwareAddr(), addresses)
-                );
+                macAddressMap.insert(pair<mac_addr, vector<in_addr>>(arpPacket.getTargetHardwareAddr(), addresses));
             }
         }
     }
