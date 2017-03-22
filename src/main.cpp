@@ -3,7 +3,6 @@
 #include <signal.h>
 #include "Arguments.h"
 #include "ARP_packetManager.h"
-#include "Utils.h"
 #include "HostsList.h"
 
 void alarmHandler(int sig);
@@ -35,6 +34,8 @@ int main(int argc, char **argv) {
 
         HostsList hostsList(ARP_packetManager::getCaughtARP_packets());
         hostsList.exportToXML(arguments.getFile());
+
+        ARP_packetManager::clean();
 
     } catch (exception &e) {
         cerr << e.what() << endl;

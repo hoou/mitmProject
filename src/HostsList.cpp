@@ -60,6 +60,10 @@ void HostsList::exportToXML(string filename) {
     }
 
     status = xmlSaveFormatFileEnc(filename.c_str(), pDocument, "UTF-8", 1);
+
+    xmlFreeDoc(pDocument);
+    xmlCleanupParser();
+
     if (status == -1)
         throw runtime_error("Cannot create output XML file");
 }
