@@ -15,13 +15,13 @@ in_addr Utils::getSubnetAddress(in_addr hostAddress, in_addr subnetMask) {
     return subnetAddress;
 }
 
-mac_addr Utils::constructMacAddressFromRawData(const u_int8_t *data) {
+mac_addr Utils::constructMacAddressFromRawData(const uint8_t *data) {
     mac_addr address;
-    memcpy(address.data(), data, sizeof(u_int8_t) * ETH_ALEN);
+    memcpy(address.data(), data, sizeof(uint8_t) * ETH_ALEN);
     return address;
 }
 
-in_addr Utils::constructIpv4addressFromRawData(const u_int8_t *data) {
+in_addr Utils::constructIpv4addressFromRawData(const uint8_t *data) {
     stringstream ss;
     in_addr constructedAddress;
 

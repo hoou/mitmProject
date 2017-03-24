@@ -5,29 +5,29 @@
 
 HostsList::HostsList() {}
 
-HostsList::HostsList(vector<ARP_packet> arpPackets) {
+HostsList::HostsList(vector<ARP_packet *> &arpPackets) {
     insert(arpPackets);
 }
 
-void HostsList::insert(vector<ARP_packet> arpPackets) {
+void HostsList::insert(vector<ARP_packet *> &arpPackets) {
     for (auto &arpPacket : arpPackets) {
         map<mac_addr, vector<in_addr>>::iterator it;
 
-        if (!Utils::isZeroMacAddress(arpPacket.getSenderHardwareAddr())) {
-            it = macAddressMap.find(arpPacket.getSenderHardwareAddr());
+        if (!Utils::isZeroMacAddress(arpPacket->getSenderHardwareAddr())) {
+            it = macAddressMap.find(arpPacket->getSenderHardwareAddr());
 
             if (it == macAddressMap.end()) {
-                vector<in_addr> addresses{arpPacket.getSenderProtocolAddr()};
-                macAddressMap.insert(pair<mac_addr, vector<in_addr>>(arpPacket.getSenderHardwareAddr(), addresses));
+                vector<in_addr> addresses{arpPacket->getSenderProtocolAddr()};
+                macAddressMap.insert(pair<mac_addr, vector<in_addr>>(arpPacket->getSenderHardwareAddr(), addresses));
             }
         }
 
-        if (!Utils::isZeroMacAddress(arpPacket.getTargetHardwareAddr())) {
-            it = macAddressMap.find(arpPacket.getTargetHardwareAddr());
+        if (!Utils::isZeroMacAddress(arpPacket->getTargetHardwareAddr())) {
+            it = macAddressMap.find(arpPacket->getTargetHardwareAddr());
 
             if (it == macAddressMap.end()) {
-                vector<in_addr> addresses{arpPacket.getTargetProtocolAddr()};
-                macAddressMap.insert(pair<mac_addr, vector<in_addr>>(arpPacket.getTargetHardwareAddr(), addresses));
+                vector<in_addr> addresses{arpPacket->getTargetProtocolAddr()};
+                macAddressMap.insert(pair<mac_addr, vector<in_addr>>(arpPacket->getTargetHardwareAddr(), addresses));
             }
         }
     }

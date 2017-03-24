@@ -12,9 +12,9 @@ private:
 public:
     HostsList();
 
-    HostsList(vector<ARP_packet> arpPackets);
+    HostsList(vector<ARP_packet *> &arpPackets);
 
-    void insert(vector<ARP_packet> arpPackets);
+    void insert(vector<ARP_packet *> &arpPackets);
 
     void exportToXML(string filename);
 };

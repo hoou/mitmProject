@@ -11,31 +11,37 @@ int main(int argc, char **argv) {
     try {
         Arguments arguments(argc, argv);
         NetworkInterface networkInterface(arguments.getInterface());
-        ARP_packetManager::init(&networkInterface);
-        
+        ARP_packetManager *arp_packetManager;
+
+        arp_packetManager = ARP_packetManager::getInstance2();
+
+        arp_packetManager->init(&networkInterface);
+
         alarm(10);
         signal(SIGALRM, alarmHandler);
 
-        ARP_packetManager::listen();
+        arp_packetManager->listen();
 
         vector<in_addr> allAvailableHostsAddresses = networkInterface.getSubnet()->getAllAvailableHostsAddresses();
         for (vector<in_addr>::iterator availableHostAddressIt = allAvailableHostsAddresses.begin();
              availableHostAddressIt < allAvailableHostsAddresses.end(); availableHostAddressIt++) {
-            ARP_packet arpPacket = ARP_packet::request(
+            ARP_packet *arpPacket = ARP_packet::createRequest(
                     networkInterface.getPhysicalAddress(), // Sender hardware address
                     networkInterface.getAddress(), // Sender protocol address
                     *availableHostAddressIt // Target protocol address
             );
 
-            ARP_packetManager::sendRequest(arpPacket);
+            arp_packetManager->send(arpPacket);
+
+            delete (arpPacket);
         }
 
-        ARP_packetManager::wait();
+        arp_packetManager->wait();
 
-        HostsList hostsList(ARP_packetManager::getCaughtARP_packets());
+        HostsList hostsList(arp_packetManager->getCaughtARP_packets());
         hostsList.exportToXML(arguments.getFile());
 
-        ARP_packetManager::clean();
+        arp_packetManager->clean();
 
     } catch (exception &e) {
         cerr << e.what() << endl;
@@ -46,5 +52,5 @@ int main(int argc, char **argv) {
 }
 
 void alarmHandler(int sig) {
-    ARP_packetManager::stopListen();
+    ARP_packetManager::getInstance2()->stopListen();
 }
