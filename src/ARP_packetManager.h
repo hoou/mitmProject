@@ -41,8 +41,6 @@ public:
     static void sendRequest(ARP_packet arpPacket);
 
     static const vector<ARP_packet> &getCaughtARP_packets();
-
-    static const map<string, vector<in_addr>> getMACaddressMap();
 };
 
 
