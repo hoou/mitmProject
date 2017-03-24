@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
         NetworkInterface networkInterface(arguments.getInterface());
         ARP_packetManager *arp_packetManager;
 
-        arp_packetManager = ARP_packetManager::getInstance2();
+        arp_packetManager = ARP_packetManager::getInstance();
 
         arp_packetManager->init(&networkInterface);
 
@@ -52,5 +52,5 @@ int main(int argc, char **argv) {
 }
 
 void alarmHandler(int sig) {
-    ARP_packetManager::getInstance2()->stopListen();
+    ARP_packetManager::getInstance()->stopListen();
 }

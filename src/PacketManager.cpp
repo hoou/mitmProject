@@ -1,5 +1,4 @@
 #include <thread>
-#include <iostream>
 #include "PacketManager.h"
 
 void PacketManager::init(NetworkInterface *networkInterface) {
@@ -20,11 +19,7 @@ void PacketManager::clean() {
 
 void PacketManager::listen() {
     mtx.lock();
-//    listenThread = thread([](PacketManager *packetManager){
-//        packetManager->listenTask();
-//    }(getInstance()));
-
-    listenThread = thread(&PacketManager::listenTask, getInstance());
+    listenThread = thread(&PacketManager::listenTask, this);
 }
 
 void PacketManager::listenTask() {
@@ -40,7 +35,7 @@ void PacketManager::listenTask() {
     /* Allow to send packets */
     mtx.unlock();
 
-    pcap_loop(listenPCAP_handle, 0, packetHandler, reinterpret_cast<u_char*>(getInstance()));
+    pcap_loop(listenPCAP_handle, 0, packetHandler, reinterpret_cast<u_char *>(this));
     pcap_close(listenPCAP_handle);
 }
 
@@ -62,14 +57,6 @@ void PacketManager::send(Packet *packet) {
 
     /* Wait for beginning of pcap_loop */
     mtx.lock();
-
-/*
-    cerr << "dlzka paketu: " << packet->getLength() << endl;
-    for (int i = 0; i < packet->getLength(); i++) {
-        cerr << (int) packet->getRawData()[i];
-    }
-    cerr << endl;
-*/
 
     status = pcap_inject(sendPCAP_handle, packet->getRawData(), packet->getLength());
 

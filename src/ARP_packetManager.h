@@ -24,12 +24,10 @@ private:
 
     void processPacket(u_char *payload) override;
 
-    PacketManager *getInstance() override;
-
 public:
     void clean() override;
 
-    static ARP_packetManager *getInstance2();
+    static ARP_packetManager *getInstance();
 
     vector<ARP_packet *> &getCaughtARP_packets();
 };

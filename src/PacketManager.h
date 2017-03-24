@@ -27,7 +27,6 @@ protected:
     virtual void processPacket(u_char *payload)=0;
 
 public:
-    virtual PacketManager *getInstance()=0;
 
     void init(NetworkInterface *networkInterface);
 

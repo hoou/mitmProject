@@ -30,10 +30,6 @@ void ARP_packetManager::setupFilters() {
     pcap_freecode(&filter);
 }
 
-PacketManager *ARP_packetManager::getInstance() {
-    return getInstance2();
-}
-
 void ARP_packetManager::processPacket(u_char *payload) {
     ARP_packet *arp_packet = new ARP_packet(payload, ETH_HLEN + sizeof(struct ether_arp));
 
@@ -45,7 +41,7 @@ void ARP_packetManager::processPacket(u_char *payload) {
     caughtArpPackets.push_back(arp_packet);
 }
 
-ARP_packetManager *ARP_packetManager::getInstance2() {
+ARP_packetManager *ARP_packetManager::getInstance() {
     if (instance == nullptr) {
         instance = new ARP_packetManager();
     }
