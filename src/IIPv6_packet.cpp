@@ -1,3 +1,4 @@
+#include <iostream>
 #include "IIPv6_packet.h"
 
 struct ip6_hdr IIPv6_packet::constructIPv6Header(
@@ -34,6 +35,21 @@ struct ip6_hdr IIPv6_packet::constructIPv6Header(
     header.ip6_dst = destAddr;
 
     return header;
+}
+
+vector<uint8_t> IIPv6_packet::constructDestinationOptionsHeader(uint8_t nextHeader, uint8_t length, vector<uint8_t> options) {
+    struct ip6_dest optionsHeader;
+
+    optionsHeader.ip6d_nxt = nextHeader;
+    optionsHeader.ip6d_len = length;
+
+    vector<uint8_t> result((uint8_t *) (&optionsHeader), ((uint8_t *) (&optionsHeader)) + sizeof(struct ip6_dest));
+
+    for (int i = 0; i < options.size(); i++) {
+        result.push_back(options[i]);
+    }
+
+    return result;
 }
 
 in6_addr IIPv6_packet::getSourceAddress() {

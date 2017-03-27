@@ -22,6 +22,10 @@ ICMPv6_packetManager *ICMPv6_packetManager::getInstance() {
 void ICMPv6_packetManager::clean() {
     PacketManager::clean();
 
+    for (auto &packet : caughtPackets) {
+        delete (packet);
+    }
+
     if (instance != nullptr)
         delete instance;
 }

@@ -50,10 +50,18 @@ int main(int argc, char **argv) {
                 networkInterface.getIpv6addresses().at(0),
                 Utils::constructIpv6AllNodesMulticastAddress()
         );
+        ICMPv6_packet *malformedIcmpv6Packet = ICMPv6_packet::createMalformedEchoRequest(
+                networkInterface.getPhysicalAddress(),
+                Utils::constructEthernetAllNodesMulticastAddress(),
+                networkInterface.getIpv6addresses().at(0),
+                Utils::constructIpv6AllNodesMulticastAddress()
+        );
 
         icmpv6PacketManager->send(icmpv6Packet);
+        icmpv6PacketManager->send(malformedIcmpv6Packet);
 
         delete icmpv6Packet;
+        delete malformedIcmpv6Packet;
 
         alarm(10);
         signal(SIGALRM, alarmHandler);
@@ -61,6 +69,7 @@ int main(int argc, char **argv) {
         arpPacketManager->wait();
         icmpv6PacketManager->wait();
 
+/*
         for (auto &icmp6packet : icmpv6PacketManager->getCaughtPackets()) {
             cout << Utils::formatMacAddress(
                     icmp6packet->getEthernetSourceAddress(),
@@ -73,8 +82,12 @@ int main(int argc, char **argv) {
             );
             cout << "\t" << Utils::ipv6ToString(icmp6packet->getDestinationAddress()) << endl << endl;
         }
+*/
 
-        HostsList hostsList(arpPacketManager->getCaughtARP_packets());
+        HostsList hostsList(
+                arpPacketManager->getCaughtARP_packets(),
+                (vector<ICMPv6_packet *> &) icmpv6PacketManager->getCaughtPackets()
+        );
         hostsList.exportToXML(arguments.getFile());
 
         arpPacketManager->clean();

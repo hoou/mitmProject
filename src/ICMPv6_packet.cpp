@@ -13,7 +13,7 @@ void ICMPv6_packet::setupHeaders() {
     memcpy(&ipv6PayloadLength, rawData + ETH_HLEN + 4, sizeof(uint16_t));
     ipv6PayloadLength = htons(ipv6PayloadLength);
 
-    memcpy(&icmp6Header, rawData + ETH_HLEN + IP6_HDRLEN, ipv6PayloadLength * sizeof(uint8_t));
+    memcpy(&icmp6Header, rawData + ETH_HLEN + IP6_HDRLEN, sizeof(icmp6Header) * sizeof(uint8_t));
 }
 
 ICMPv6_packet *ICMPv6_packet::createEchoRequest(
@@ -39,6 +39,51 @@ ICMPv6_packet *ICMPv6_packet::createEchoRequest(
     memcpy(data, &etherHeader, ETH_HLEN * sizeof(uint8_t));
     memcpy(data + ETH_HLEN, &ipv6header, IP6_HDRLEN * sizeof(uint8_t));
     memcpy(data + ETH_HLEN + IP6_HDRLEN, &icmp6Header, ICMP_HDRLEN * sizeof(uint8_t));
+
+    icmPv6Packet = new ICMPv6_packet(data, length);
+
+    free(data);
+
+    return icmPv6Packet;
+}
+
+ICMPv6_packet *ICMPv6_packet::createMalformedEchoRequest(
+        mac_addr senderHardwareAddress,
+        mac_addr targetHardwareAddress,
+        in6_addr sourceAddress,
+        in6_addr destinationAddress
+) {
+    uint8_t *data;
+    size_t length;
+    ICMPv6_packet *icmPv6Packet;
+
+    struct ether_header etherHeader = constructEthernetHeader(ETH_P_IPV6, senderHardwareAddress, targetHardwareAddress);
+
+    vector<uint8_t> destinationOptionsHeader = constructDestinationOptionsHeader(
+            IPPROTO_ICMPV6,
+            0,
+            vector<uint8_t>{0x80, 0x01, 0x00, 0x00, 0x00, 0x00}
+    );
+
+    struct ip6_hdr ipv6header = constructIPv6Header(
+            (uint16_t) (ICMP_HDRLEN + destinationOptionsHeader.size()),
+            IPPROTO_DSTOPTS,
+            sourceAddress,
+            destinationAddress
+    );
+
+    struct icmp6_hdr icmp6Header = constructICMP6header(ICMP6_ECHO_REQUEST, 0);
+
+    /* Checksum */
+    icmp6Header.icmp6_cksum = icmp6_checksum(ipv6header, icmp6Header, NULL, 0);
+
+    length = ETH_HLEN + IP6_HDRLEN + ICMP_HDRLEN + destinationOptionsHeader.size();
+
+    data = (uint8_t *) malloc(length * sizeof(uint8_t));
+    memcpy(data, &etherHeader, ETH_HLEN * sizeof(uint8_t));
+    memcpy(data + ETH_HLEN, &ipv6header, IP6_HDRLEN * sizeof(uint8_t));
+    memcpy(data + ETH_HLEN + IP6_HDRLEN, destinationOptionsHeader.data(), destinationOptionsHeader.size() * sizeof(uint8_t));
+    memcpy(data + ETH_HLEN + IP6_HDRLEN + destinationOptionsHeader.size(), &icmp6Header, ICMP_HDRLEN * sizeof(uint8_t));
 
     icmPv6Packet = new ICMPv6_packet(data, length);
 
@@ -167,8 +212,6 @@ uint16_t ICMPv6_packet::icmp6_checksum(
     return checksum((uint16_t *) buf, chksumlen);
 }
 
-// Computing the internet checksum (RFC 1071).
-// Note that the internet checksum does not preclude collisions.
 uint16_t ICMPv6_packet::checksum(uint16_t *addr, int len) {
     int count = len;
     register uint32_t sum = 0;

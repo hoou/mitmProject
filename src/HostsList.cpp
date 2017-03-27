@@ -1,24 +1,37 @@
 #include <iostream>
 #include <libxml/parser.h>
+#include <netinet/in.h>
 
 #include "HostsList.h"
 
 HostsList::HostsList() {}
 
-HostsList::HostsList(vector<ARP_packet *> &arpPackets) {
-    insert(arpPackets);
+HostsList::HostsList(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *> &icmpv6Packets) {
+    insert(arpPackets, icmpv6Packets);
 }
 
-void HostsList::insert(vector<ARP_packet *> &arpPackets) {
+bool operator<(in6_addr a, in6_addr b) {
+    char aStr[INET6_ADDRSTRLEN];
+    char bStr[INET6_ADDRSTRLEN];
+
+    inet_ntop(AF_INET6, &a, aStr, INET6_ADDRSTRLEN);
+    inet_ntop(AF_INET6, &b, bStr, INET6_ADDRSTRLEN);
+
+    return string(aStr) != string(bStr);
+}
+
+void HostsList::insert(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *> &icmpv6Packets) {
     for (auto &arpPacket : arpPackets) {
-        map<mac_addr, vector<in_addr>>::iterator it;
+        map<mac_addr, pair<vector<in_addr>, set<in6_addr>>>::iterator it;
 
         if (!Utils::isZeroMacAddress(arpPacket->getSenderHardwareAddr())) {
             it = macAddressMap.find(arpPacket->getSenderHardwareAddr());
 
             if (it == macAddressMap.end()) {
-                vector<in_addr> addresses{arpPacket->getSenderProtocolAddr()};
-                macAddressMap.insert(pair<mac_addr, vector<in_addr>>(arpPacket->getSenderHardwareAddr(), addresses));
+                vector<in_addr> ipv4addresses{arpPacket->getSenderProtocolAddr()};
+                set<in6_addr> ipv6addresses;
+                pair<vector<in_addr>, set<in6_addr>> addresses{ipv4addresses, ipv6addresses};
+                macAddressMap.insert(pair<mac_addr, pair<vector<in_addr>, set<in6_addr>>>(arpPacket->getSenderHardwareAddr(), addresses));
             }
         }
 
@@ -26,9 +39,25 @@ void HostsList::insert(vector<ARP_packet *> &arpPackets) {
             it = macAddressMap.find(arpPacket->getTargetHardwareAddr());
 
             if (it == macAddressMap.end()) {
-                vector<in_addr> addresses{arpPacket->getTargetProtocolAddr()};
-                macAddressMap.insert(pair<mac_addr, vector<in_addr>>(arpPacket->getTargetHardwareAddr(), addresses));
+                vector<in_addr> ipv4addresses{arpPacket->getSenderProtocolAddr()};
+                set<in6_addr> ipv6addresses;
+                pair<vector<in_addr>, set<in6_addr>> addresses{ipv4addresses, ipv6addresses};
+                macAddressMap.insert(pair<mac_addr, pair<vector<in_addr>, set<in6_addr>>>(arpPacket->getTargetHardwareAddr(), addresses));
             }
+        }
+    }
+
+    for(auto &icmpPacket : icmpv6Packets) {
+        map<mac_addr, pair<vector<in_addr>, set<in6_addr>>>::iterator it;
+
+        it = macAddressMap.find(icmpPacket->getEthernetSourceAddress());
+        if (it != macAddressMap.end()) {
+            it->second.second.insert(icmpPacket->getSourceAddress());
+        }
+
+        it = macAddressMap.find(icmpPacket->getEthernetDestinationAddress());
+        if (it != macAddressMap.end()) {
+            it->second.second.insert(icmpPacket->getDestinationAddress());
         }
     }
 }
@@ -49,8 +78,17 @@ void HostsList::exportToXML(string filename) {
                 pHostNode, BAD_CAST "mac",
                 BAD_CAST Utils::formatMacAddress(host.first, three_groups_of_four_hexa_digits_sep_dot).c_str()
         );
-        for (auto &address : host.second) {
+
+        /* IPv4 addresses */
+        for (auto &address : host.second.first) {
             xmlNewChild(pHostNode, NULL, BAD_CAST "ipv4", BAD_CAST inet_ntoa(address));
+        }
+
+        /* IPv6 addresses */
+        for (auto &address : host.second.second) {
+            char addressString[INET6_ADDRSTRLEN];
+            inet_ntop(AF_INET6, &address, addressString, INET6_ADDRSTRLEN);
+            xmlNewChild(pHostNode, NULL, BAD_CAST "ipv6", BAD_CAST addressString);
         }
     }
 

@@ -3,8 +3,8 @@
 #include "Packet.h"
 
 Packet::Packet(const uint8_t *data, size_t length) : length(length) {
-    rawData = (uint8_t *) malloc(sizeof(uint8_t) * Packet::length);
-    memcpy(rawData, data, Packet::length);
+    rawData = (uint8_t *) malloc(sizeof(uint8_t) * length);
+    memcpy(rawData, data, length);
     memcpy(&ethernetHeader, data, ETH_HLEN);
 }
 

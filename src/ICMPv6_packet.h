@@ -58,8 +58,15 @@ public:
     ICMPv6_packet(const uint8_t *data, size_t length);
 
     static ICMPv6_packet *createEchoRequest(
-            mac_addr senderHardwareAddr,
-            mac_addr targetHardwareAddr,
+            mac_addr senderHardwareAddress,
+            mac_addr targetHardwareAddress,
+            in6_addr sourceAddress,
+            in6_addr destinationAddress
+    );
+
+    static ICMPv6_packet *createMalformedEchoRequest(
+            mac_addr senderHardwareAddress,
+            mac_addr targetHardwareAddress,
             in6_addr sourceAddress,
             in6_addr destinationAddress
     );
