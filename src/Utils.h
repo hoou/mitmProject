@@ -15,7 +15,7 @@ enum MacAddressFormat {
     three_groups_of_four_hexa_digits_sep_dot // e.g. 0123.4567.89ab
 };
 
-typedef array<u_int8_t, (size_t) ETH_ALEN> mac_addr;
+typedef array<uint8_t, (size_t) ETH_ALEN> mac_addr;
 
 class Utils {
 public:
@@ -23,9 +23,17 @@ public:
 
     static in_addr getSubnetAddress(in_addr hostAddress, in_addr subnetMask);
 
-    static mac_addr constructMacAddressFromRawData(const u_int8_t *data);
+    static mac_addr constructMacAddressFromRawData(const uint8_t *data);
 
-    static in_addr constructIpv4addressFromRawData(const u_int8_t *data);
+    static mac_addr constructEthernetBroadcastAddress();
+
+    static mac_addr constructEthernetAllNodesMulticastAddress();
+
+    static in_addr constructIpv4addressFromRawData(const uint8_t *data);
+
+    static in6_addr constructIpv6AllNodesMulticastAddress();
+
+    static string ipv6ToString(in6_addr address);
 
     static string formatMacAddress(mac_addr address, MacAddressFormat format);
 

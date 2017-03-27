@@ -8,39 +8,26 @@
 #include <map>
 #include "ARP_packet.h"
 #include "NetworkInterface.h"
+#include "PacketManager.h"
 
 using namespace std;
 
-class ARP_packetManager {
+class ARP_packetManager : public PacketManager {
 private:
-    static mutex mtx;
-    static NetworkInterface *networkInterface;
-    static thread listenThread;
-    static pcap_t *listenPCAP_handle;
-    static pcap_t *sendPCAP_handle;
-    static vector<ARP_packet> caughtARPpackets;
+    static ARP_packetManager *instance;
 
-    static void listenTask();
-
-    static void packetHandler(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
+    vector<ARP_packet*> caughtArpPackets;
 
     ARP_packetManager();
 
+    void processPacket(u_char *payload, size_t length) override;
+
 public:
+    static ARP_packetManager *getInstance();
 
-    static void init(NetworkInterface *networkInterface);
+    void clean() override;
 
-    static void clean();
-
-    static void listen();
-
-    static void stopListen();
-
-    static void wait();
-
-    static void sendRequest(ARP_packet arpPacket);
-
-    static const vector<ARP_packet> &getCaughtARP_packets();
+    vector<ARP_packet *> &getCaughtARP_packets();
 };
 
 

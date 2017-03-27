@@ -16,7 +16,13 @@ set(SOURCE_FILES
         ARP_packet.h
         HostsList.cpp
         HostsList.h
-        )
+        ICMPv6_packetManager.cpp
+        ICMPv6_packetManager.h
+        PacketManager.cpp
+        PacketManager.h
+        Packet.cpp
+        Packet.h
+        ICMPv6_packet.cpp ICMPv6_packet.h IIPv6_packet.cpp IIPv6_packet.h)
 
 add_executable(projekt_new ${SOURCE_FILES})
 

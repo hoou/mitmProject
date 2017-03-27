@@ -1,87 +1,82 @@
 #include "ARP_packet.h"
 #include <cstring>
 
-ARP_packet::ARP_packet() {}
+ARP_packet::ARP_packet(const uint8_t *data, size_t length) : Packet(data, length) {
+    setupHeaders();
+}
 
-ARP_packet ARP_packet::request(mac_addr senderHardwareAddr, in_addr senderProtocolAddr, in_addr targetProtocolAddr) {
-    /* http://www.microhowto.info/howto/send_an_arbitrary_ethernet_frame_using_libpcap/send_arp.c */
-    ARP_packet arpPacket;
-    arpPacket.constructEthernetHeader(senderHardwareAddr);
-    arpPacket.constructArpRequest(senderHardwareAddr, senderProtocolAddr, targetProtocolAddr);
-    arpPacket.constructContiguousFrame();
+void ARP_packet::setupHeaders() {
+    memcpy(&ARP_struct, rawData + ETH_HLEN, sizeof(struct ether_arp));
+}
+
+/* http://www.microhowto.info/howto/send_an_arbitrary_ethernet_frame_using_libpcap/send_arp.c */
+ARP_packet *ARP_packet::createRequest(
+        mac_addr senderHardwareAddr,
+        in_addr senderProtocolAddr,
+        in_addr targetProtocolAddr
+) {
+    uint8_t *data;
+    size_t length;
+    size_t arpLength = sizeof(struct ether_arp);
+
+    struct ether_header etherHeader = constructEthernetHeader(ETH_P_ARP, senderHardwareAddr, Utils::constructEthernetBroadcastAddress());
+    struct ether_arp arpStruct = constructArpRequest(senderHardwareAddr, senderProtocolAddr, targetProtocolAddr);
+
+    length = ETH_HLEN + arpLength;
+
+    data = (uint8_t *) malloc(sizeof(uint8_t) * length);
+
+    memcpy(data, &etherHeader, ETH_HLEN);
+    memcpy(data + ETH_HLEN, &arpStruct, arpLength);
+
+    ARP_packet *arpPacket = new ARP_packet(data, length);
+
+    free(data);
+
     return arpPacket;
 }
 
-ARP_packet ARP_packet::constructFromRawData(const u_char *data) {
-    ARP_packet arpPacket;
-    memcpy(&arpPacket.ethernetHeader, data, ETH_HLEN);
-    memcpy(&arpPacket.ARP_struct, data + ETH_HLEN, sizeof(struct ether_arp));
-    memcpy(&arpPacket.frame, data, getFrameSize());
-    return arpPacket;
-}
-
-void ARP_packet::constructArpRequest(
+struct ether_arp ARP_packet::constructArpRequest(
         mac_addr senderHardwareAddr, in_addr senderProtocolAddr, in_addr targetProtocolAddr
 ) {
+    struct ether_arp arpStruct;
+
     /* APR header */
-    ARP_struct.ea_hdr.ar_hrd = htons(ARPHRD_ETHER);
-    ARP_struct.ea_hdr.ar_pro = htons(ETH_P_IP);
-    ARP_struct.ea_hdr.ar_hln = ETHER_ADDR_LEN;
-    ARP_struct.ea_hdr.ar_pln = sizeof(in_addr_t);
-    ARP_struct.ea_hdr.ar_op = htons(ARPOP_REQUEST);
+    arpStruct.ea_hdr.ar_hrd = htons(ARPHRD_ETHER);
+    arpStruct.ea_hdr.ar_pro = htons(ETH_P_IP);
+    arpStruct.ea_hdr.ar_hln = ETHER_ADDR_LEN;
+    arpStruct.ea_hdr.ar_pln = sizeof(in_addr_t);
+    arpStruct.ea_hdr.ar_op = htons(ARPOP_REQUEST);
 
     /* Sender hardware address */
-    memcpy(&ARP_struct.arp_sha, senderHardwareAddr.data(), sizeof(ARP_struct.arp_sha));
+    memcpy(&arpStruct.arp_sha, senderHardwareAddr.data(), sizeof(arpStruct.arp_sha));
 
     /* Sender protocol address */
-    memcpy(&ARP_struct.arp_spa, &senderProtocolAddr.s_addr, sizeof(ARP_struct.arp_spa));
+    memcpy(&arpStruct.arp_spa, &senderProtocolAddr.s_addr, sizeof(arpStruct.arp_spa));
 
     /* Target hardware address */
-    memset(&ARP_struct.arp_tha, 0, sizeof(ARP_struct.arp_tha)); // always 0 when requesting, we are trying to find it
+    memset(&arpStruct.arp_tha, 0, sizeof(arpStruct.arp_tha)); // always 0 when requesting, we are trying to find it
 
     /* Target protocol address */
-    memcpy(&ARP_struct.arp_tpa, &targetProtocolAddr.s_addr, sizeof(ARP_struct.arp_tpa));
-}
+    memcpy(&arpStruct.arp_tpa, &targetProtocolAddr.s_addr, sizeof(arpStruct.arp_tpa));
 
-void ARP_packet::constructEthernetHeader(mac_addr source, mac_addr destination) {
-    ethernetHeader.ether_type = htons(ETH_P_ARP);
-    memcpy(ethernetHeader.ether_shost, source.data(), ETH_ALEN);
-
-    /* If destination address not set, send broadcast */
-    if (Utils::isZeroMacAddress(destination)) {
-        memset(ethernetHeader.ether_dhost, 0xff, ETH_ALEN);
-    } else {
-        memcpy(ethernetHeader.ether_dhost, destination.data(), ETH_ALEN);
-    }
-}
-
-void ARP_packet::constructContiguousFrame() {
-    memcpy(frame, &ethernetHeader, sizeof(struct ether_header));
-    memcpy(frame + sizeof(struct ether_header), &ARP_struct, sizeof(struct ether_arp));
-}
-
-const unsigned char *ARP_packet::getFrame() const {
-    return frame;
-}
-
-const size_t ARP_packet::getFrameSize() {
-    return frameSize;
+    return arpStruct;
 }
 
 mac_addr ARP_packet::getSenderHardwareAddr() {
-    return Utils::constructMacAddressFromRawData(ARP_struct.arp_sha);
+    return Utils::constructMacAddressFromRawData((const uint8_t *) ARP_struct.arp_sha);
 }
 
 in_addr ARP_packet::getSenderProtocolAddr() {
-    return Utils::constructIpv4addressFromRawData(ARP_struct.arp_spa);
+    return Utils::constructIpv4addressFromRawData((const uint8_t *) ARP_struct.arp_spa);
 }
 
 mac_addr ARP_packet::getTargetHardwareAddr() {
-    return Utils::constructMacAddressFromRawData(ARP_struct.arp_tha);
+    return Utils::constructMacAddressFromRawData((const uint8_t *) ARP_struct.arp_tha);
 }
 
 in_addr ARP_packet::getTargetProtocolAddr() {
-    return Utils::constructIpv4addressFromRawData(ARP_struct.arp_tpa);
+    return Utils::constructIpv4addressFromRawData((const uint8_t *) ARP_struct.arp_tpa);
 }
 
 unsigned short ARP_packet::getArpType() {

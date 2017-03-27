@@ -9,8 +9,9 @@ NetworkInterface::NetworkInterface(const string &name) : name(name) {
     in_addr mask;
 
     setPhysicalAddress();
-    mask = setAddressAndGetMask();
-    subnet = new Subnet(Utils::getSubnetAddress(address, mask), mask);
+
+    getAddressesAndMask(ipv4address, ipv6addresses, mask);
+    subnet = new Subnet(Utils::getSubnetAddress(ipv4address, mask), mask);
 }
 
 NetworkInterface::~NetworkInterface() {
@@ -18,13 +19,15 @@ NetworkInterface::~NetworkInterface() {
         delete subnet;
 }
 
-in_addr NetworkInterface::setAddressAndGetMask() {
+void
+NetworkInterface::getAddressesAndMask(in_addr &ipv4address, vector<in6_addr> &ipv6addresses, in_addr &mask) {
     int status;
     char errorBuffer[PCAP_ERRBUF_SIZE];
     pcap_if_t *allInterfaces;
     bool interfaceFound = false;
-    bool addressFound = false;
-    in_addr mask = in_addr();
+    bool ipv4addressFound = false;
+
+    ipv6addresses.clear();
 
     status = pcap_findalldevs(&allInterfaces, errorBuffer);
     if (status == -1)
@@ -33,11 +36,16 @@ in_addr NetworkInterface::setAddressAndGetMask() {
     for (pcap_if_t *interface = allInterfaces; interface != NULL; interface = interface->next) {
         if (interface->name == name) {
             for (pcap_addr *pAddress = interface->addresses; pAddress != NULL; pAddress = pAddress->next) {
+                /* IPv4 */
                 if (pAddress->addr->sa_family == AF_INET) {
-                    address = ((sockaddr_in *) (pAddress->addr))->sin_addr;
+                    ipv4address = ((sockaddr_in *) (pAddress->addr))->sin_addr;
                     mask = ((sockaddr_in *) (pAddress->netmask))->sin_addr;
-                    addressFound = true;
-                    break;
+                    ipv4addressFound = true;
+                }
+
+                /* IPv6 */
+                if (pAddress->addr->sa_family == AF_INET6) {
+                    ipv6addresses.push_back(((sockaddr_in6 *) (pAddress->addr))->sin6_addr);
                 }
             }
             interfaceFound = true;
@@ -48,12 +56,10 @@ in_addr NetworkInterface::setAddressAndGetMask() {
     if (!interfaceFound)
         throw runtime_error("Interface " + name + " not found");
 
-    if (!addressFound)
+    if (!ipv4addressFound)
         throw runtime_error("No IPv4 address found");
 
     pcap_freealldevs(allInterfaces);
-
-    return mask;
 }
 
 void NetworkInterface::setPhysicalAddress() {
@@ -81,8 +87,12 @@ void NetworkInterface::setPhysicalAddress() {
         throw runtime_error("Cannot retrieve physical address of interface");
 }
 
-const in_addr &NetworkInterface::getAddress() const {
-    return address;
+const in_addr &NetworkInterface::getIpv4address() const {
+    return ipv4address;
+}
+
+const vector<in6_addr> &NetworkInterface::getIpv6addresses() const {
+    return ipv6addresses;
 }
 
 const mac_addr &NetworkInterface::getPhysicalAddress() const {
@@ -98,8 +108,11 @@ Subnet *NetworkInterface::getSubnet() const {
 }
 
 void NetworkInterface::print() {
-    cout << "Name:\t\t\t\t" << name << endl;
-    cout << "Address:\t\t\t" << inet_ntoa(address) << endl;
+    cout << "Name:\t\t\t" << name << endl;
+    cout << "IPv4 address:\t\t" << inet_ntoa(ipv4address) << endl;
+    for (auto &ipv6address : ipv6addresses) {
+        cout << "IPv6 address:\t\t" << Utils::ipv6ToString(ipv6address) << endl;
+    }
     cout << "Physical address:\t";
     cout << Utils::formatMacAddress(physicalAddress, six_groups_of_two_hexa_digits_sep_colon);
     cout << endl << endl;

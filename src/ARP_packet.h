@@ -8,32 +8,31 @@
 #include <string>
 #include <array>
 #include "Utils.h"
+#include "Packet.h"
 
 using namespace std;
 
-class ARP_packet {
+class ARP_packet : public Packet {
 private:
-    struct ether_header ethernetHeader;
     struct ether_arp ARP_struct;
-    static const size_t frameSize = sizeof(struct ether_header) + sizeof(struct ether_arp);
-    unsigned char frame[frameSize];
 
-    ARP_packet();
+    static struct ether_arp constructArpRequest(
+            mac_addr senderHardwareAddr,
+            in_addr senderProtocolAddr,
+            in_addr targetProtocolAddr
+    );
 
-    void constructEthernetHeader(mac_addr source, mac_addr destination = mac_addr());
-
-    void constructArpRequest(mac_addr senderHardwareAddr, in_addr senderProtocolAddr, in_addr targetProtocolAddr);
-
-    void constructContiguousFrame();
+protected:
+    void setupHeaders() override;
 
 public:
-    static ARP_packet constructFromRawData(const u_char *data);
+    ARP_packet(const uint8_t *data, size_t length);
 
-    static ARP_packet request(mac_addr senderHardwareAddr, in_addr senderProtocolAddr, in_addr targetProtocolAddr);
-
-    const unsigned char *getFrame() const;
-
-    static const size_t getFrameSize();
+    static ARP_packet * createRequest(
+            mac_addr senderHardwareAddr,
+            in_addr senderProtocolAddr,
+            in_addr targetProtocolAddr
+    );
 
     mac_addr getSenderHardwareAddr();
 

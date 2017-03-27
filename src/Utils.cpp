@@ -15,13 +15,21 @@ in_addr Utils::getSubnetAddress(in_addr hostAddress, in_addr subnetMask) {
     return subnetAddress;
 }
 
-mac_addr Utils::constructMacAddressFromRawData(const u_int8_t *data) {
+mac_addr Utils::constructMacAddressFromRawData(const uint8_t *data) {
     mac_addr address;
-    memcpy(address.data(), data, sizeof(u_int8_t) * ETH_ALEN);
+    memcpy(address.data(), data, sizeof(uint8_t) * ETH_ALEN);
     return address;
 }
 
-in_addr Utils::constructIpv4addressFromRawData(const u_int8_t *data) {
+mac_addr Utils::constructEthernetBroadcastAddress() {
+    return mac_addr{0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+}
+
+mac_addr Utils::constructEthernetAllNodesMulticastAddress() {
+    return mac_addr{0x33, 0x33, 0x00, 0x00, 0x00, 0x01};
+}
+
+in_addr Utils::constructIpv4addressFromRawData(const uint8_t *data) {
     stringstream ss;
     in_addr constructedAddress;
 
@@ -29,6 +37,25 @@ in_addr Utils::constructIpv4addressFromRawData(const u_int8_t *data) {
     inet_aton(ss.str().c_str(), &constructedAddress);
 
     return constructedAddress;
+}
+
+in6_addr Utils::constructIpv6AllNodesMulticastAddress() {
+    string address = "ff02::1";
+    in6_addr constructedAddress;
+
+    inet_pton(AF_INET6, address.c_str(), &constructedAddress);
+
+    return constructedAddress;
+}
+
+string Utils::ipv6ToString(in6_addr address) {
+    array<char, INET6_ADDRSTRLEN> result;
+    string ipv6addressString = inet_ntop(AF_INET6, &address, result.data(), INET6_ADDRSTRLEN);
+    if (!ipv6addressString.empty()) {
+        return ipv6addressString;
+    } else {
+        return string();
+    }
 }
 
 string Utils::formatMacAddress(mac_addr address, MacAddressFormat format) {
