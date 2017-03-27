@@ -87,8 +87,12 @@ void NetworkInterface::setPhysicalAddress() {
         throw runtime_error("Cannot retrieve physical address of interface");
 }
 
-const in_addr &NetworkInterface::getAddress() const {
+const in_addr &NetworkInterface::getIpv4address() const {
     return ipv4address;
+}
+
+const vector<in6_addr> &NetworkInterface::getIpv6addresses() const {
+    return ipv6addresses;
 }
 
 const mac_addr &NetworkInterface::getPhysicalAddress() const {

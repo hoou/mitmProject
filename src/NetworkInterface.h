@@ -30,7 +30,9 @@ public:
 
     void print();
 
-    const in_addr &getAddress() const;
+    const in_addr &getIpv4address() const;
+
+    const vector<in6_addr> &getIpv6addresses() const;
 
     const mac_addr &getPhysicalAddress() const;
 
