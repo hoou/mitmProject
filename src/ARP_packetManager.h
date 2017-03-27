@@ -20,7 +20,7 @@ private:
 
     ARP_packetManager();
 
-    void processPacket(u_char *payload) override;
+    void processPacket(u_char *payload, size_t length) override;
 
 public:
     static ARP_packetManager *getInstance();

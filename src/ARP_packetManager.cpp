@@ -11,8 +11,8 @@ vector<ARP_packet *> &ARP_packetManager::getCaughtARP_packets() {
     return caughtArpPackets;
 }
 
-void ARP_packetManager::processPacket(u_char *payload) {
-    ARP_packet *arp_packet = new ARP_packet(payload, ETH_HLEN + sizeof(struct ether_arp));
+void ARP_packetManager::processPacket(u_char *payload, size_t length) {
+    ARP_packet *arp_packet = new ARP_packet(payload, length);
 
     caughtArpPackets.push_back(arp_packet);
 }

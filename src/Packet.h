@@ -29,6 +29,10 @@ public:
     uint8_t *getRawData() const;
 
     size_t getLength() const;
+
+    mac_addr getEthernetSourceAddress();
+
+    mac_addr getEthernetDestinationAddress();
 };
 
 

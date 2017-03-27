@@ -1,10 +1,19 @@
 #include "ICMPv6_packet.h"
 #include <netinet/ip.h>
+#include <iostream>
 
-ICMPv6_packet::ICMPv6_packet(const uint8_t *data, size_t length) : Packet(data, length) {}
+ICMPv6_packet::ICMPv6_packet(const uint8_t *data, size_t length) : Packet(data, length) {
+    setupHeaders();
+}
 
 void ICMPv6_packet::setupHeaders() {
+    memcpy(&ipv6Header, rawData + ETH_HLEN, sizeof(uint8_t) * IP6_HDRLEN);
 
+    uint16_t ipv6PayloadLength;
+    memcpy(&ipv6PayloadLength, rawData + ETH_HLEN + 4, sizeof(uint16_t));
+    ipv6PayloadLength = htons(ipv6PayloadLength);
+
+    memcpy(&icmp6Header, rawData + ETH_HLEN + IP6_HDRLEN, ipv6PayloadLength * sizeof(uint8_t));
 }
 
 ICMPv6_packet *ICMPv6_packet::createEchoRequest(

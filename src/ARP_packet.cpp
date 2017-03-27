@@ -30,7 +30,6 @@ ARP_packet *ARP_packet::createRequest(
     memcpy(data + ETH_HLEN, &arpStruct, arpLength);
 
     ARP_packet *arpPacket = new ARP_packet(data, length);
-    arpPacket->ARP_struct = arpStruct;
 
     free(data);
 

@@ -35,3 +35,11 @@ struct ip6_hdr IIPv6_packet::constructIPv6Header(
 
     return header;
 }
+
+in6_addr IIPv6_packet::getSourceAddress() {
+    return ipv6Header.ip6_src;
+}
+
+in6_addr IIPv6_packet::getDestinationAddress() {
+    return ipv6Header.ip6_dst;
+}

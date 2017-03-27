@@ -5,7 +5,6 @@
 #include "ARP_packetManager.h"
 #include "HostsList.h"
 #include "ICMPv6_packetManager.h"
-#include "ICMPv6_packet.h"
 
 void alarmHandler(int sig);
 
@@ -56,11 +55,24 @@ int main(int argc, char **argv) {
 
         delete icmpv6Packet;
 
-        alarm(5);
+        alarm(10);
         signal(SIGALRM, alarmHandler);
 
         arpPacketManager->wait();
         icmpv6PacketManager->wait();
+
+        for (auto &icmp6packet : icmpv6PacketManager->getCaughtPackets()) {
+            cout << Utils::formatMacAddress(
+                    icmp6packet->getEthernetSourceAddress(),
+                    six_groups_of_two_hexa_digits_sep_colon
+            );
+            cout << "\t" << Utils::ipv6ToString(icmp6packet->getSourceAddress()) << endl;
+            cout << Utils::formatMacAddress(
+                    icmp6packet->getEthernetDestinationAddress(),
+                    six_groups_of_two_hexa_digits_sep_colon
+            );
+            cout << "\t" << Utils::ipv6ToString(icmp6packet->getDestinationAddress()) << endl << endl;
+        }
 
         HostsList hostsList(arpPacketManager->getCaughtARP_packets());
         hostsList.exportToXML(arguments.getFile());

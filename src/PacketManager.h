@@ -28,7 +28,7 @@ protected:
 
     void setListenFilterExpression(const string &listenFilterExpression);
 
-    virtual void processPacket(u_char *payload)=0;
+    virtual void processPacket(u_char *payload, size_t length)=0;
 
 public:
 

@@ -42,7 +42,7 @@ void PacketManager::listenTask() {
 
 void PacketManager::packetHandler(u_char *args, const struct pcap_pkthdr *header, const u_char *payload) {
     PacketManager *packetManager = reinterpret_cast<PacketManager *>(args);
-    packetManager->processPacket((u_char *) payload);
+    packetManager->processPacket((u_char *) payload, header->caplen);
 }
 
 void PacketManager::stopListen() {

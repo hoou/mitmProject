@@ -17,23 +17,9 @@
 
 class ICMPv6_packet : public Packet, public IIPv6_packet {
 private:
+    struct icmp6_hdr icmp6Header;
+
     static icmp6_hdr constructICMP6header(uint8_t type, uint8_t code);
-
-
-protected:
-    void setupHeaders() override;
-
-public:
-
-    ICMPv6_packet(const uint8_t *data, size_t length);
-
-    static ICMPv6_packet *createEchoRequest(
-            mac_addr senderHardwareAddr,
-            mac_addr targetHardwareAddr,
-            in6_addr sourceAddress,
-            in6_addr destinationAddress
-    );
-
 
     /**
      * Build IPv6 ICMP pseudo-header and call checksum function (Section 8.1 of RFC 2460).
@@ -63,6 +49,20 @@ public:
      * @return
      */
     static uint16_t checksum(uint16_t *addr, int len);
+
+protected:
+    void setupHeaders() override;
+
+public:
+
+    ICMPv6_packet(const uint8_t *data, size_t length);
+
+    static ICMPv6_packet *createEchoRequest(
+            mac_addr senderHardwareAddr,
+            mac_addr targetHardwareAddr,
+            in6_addr sourceAddress,
+            in6_addr destinationAddress
+    );
 };
 
 
