@@ -9,7 +9,7 @@ NetworkInterface::NetworkInterface(const string &name) : name(name) {
     in_addr mask;
 
     setPhysicalAddress();
-    mask = setAddressAndGetMask();
+    getAddressAndMask(address, mask);
     subnet = new Subnet(Utils::getSubnetAddress(address, mask), mask);
 }
 
@@ -18,13 +18,12 @@ NetworkInterface::~NetworkInterface() {
         delete subnet;
 }
 
-in_addr NetworkInterface::setAddressAndGetMask() {
+void NetworkInterface::getAddressAndMask(in_addr &address, in_addr &mask) {
     int status;
     char errorBuffer[PCAP_ERRBUF_SIZE];
     pcap_if_t *allInterfaces;
     bool interfaceFound = false;
     bool addressFound = false;
-    in_addr mask = in_addr();
 
     status = pcap_findalldevs(&allInterfaces, errorBuffer);
     if (status == -1)
@@ -52,8 +51,6 @@ in_addr NetworkInterface::setAddressAndGetMask() {
         throw runtime_error("No IPv4 address found");
 
     pcap_freealldevs(allInterfaces);
-
-    return mask;
 }
 
 void NetworkInterface::setPhysicalAddress() {

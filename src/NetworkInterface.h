@@ -18,7 +18,7 @@ private:
     mac_addr physicalAddress;
     Subnet *subnet = nullptr;
 
-    in_addr setAddressAndGetMask();
+    void getAddressAndMask(in_addr &address, in_addr &mask);
 
     void setPhysicalAddress();
 
