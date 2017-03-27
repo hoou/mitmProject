@@ -22,7 +22,7 @@ set(SOURCE_FILES
         PacketManager.h
         Packet.cpp
         Packet.h
-        )
+        ICMPv6_packet.cpp ICMPv6_packet.h IIPv6_packet.cpp IIPv6_packet.h)
 
 add_executable(projekt_new ${SOURCE_FILES})
 

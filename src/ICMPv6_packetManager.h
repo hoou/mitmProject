@@ -3,12 +3,20 @@
 
 
 #include "NetworkInterface.h"
+#include "PacketManager.h"
 
-class ICMPv6_packetManager {
+class ICMPv6_packetManager : public PacketManager {
 private:
-    static NetworkInterface *networkInterface;
+    static ICMPv6_packetManager *instance;
+
+    ICMPv6_packetManager();
+
+    void processPacket(u_char *payload) override;
+
 public:
-    static void init(NetworkInterface *networkInterface);
+    void clean() override;
+
+    static ICMPv6_packetManager *getInstance();
 };
 
 

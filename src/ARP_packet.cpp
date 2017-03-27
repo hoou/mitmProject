@@ -1,8 +1,12 @@
 #include "ARP_packet.h"
 #include <cstring>
 
-ARP_packet::ARP_packet(uint8_t *data, size_t length) : Packet(data, length) {
-    memcpy(&ARP_struct, data + ETH_HLEN, sizeof(struct ether_arp));
+ARP_packet::ARP_packet(const uint8_t *data, size_t length) : Packet(data, length) {
+    setupHeaders();
+}
+
+void ARP_packet::setupHeaders() {
+    memcpy(&ARP_struct, rawData + ETH_HLEN, sizeof(struct ether_arp));
 }
 
 /* http://www.microhowto.info/howto/send_an_arbitrary_ethernet_frame_using_libpcap/send_arp.c */
@@ -15,7 +19,7 @@ ARP_packet *ARP_packet::createRequest(
     size_t length;
     size_t arpLength = sizeof(struct ether_arp);
 
-    struct ether_header etherHeader = constructEthernetHeader(ETH_P_ARP, senderHardwareAddr);
+    struct ether_header etherHeader = constructEthernetHeader(ETH_P_ARP, senderHardwareAddr, Utils::constructEthernetBroadcastAddress());
     struct ether_arp arpStruct = constructArpRequest(senderHardwareAddr, senderProtocolAddr, targetProtocolAddr);
 
     length = ETH_HLEN + arpLength;

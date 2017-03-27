@@ -111,12 +111,7 @@ void NetworkInterface::print() {
     cout << "Name:\t\t\t" << name << endl;
     cout << "IPv4 address:\t\t" << inet_ntoa(ipv4address) << endl;
     for (auto &ipv6address : ipv6addresses) {
-        array<char, INET6_ADDRSTRLEN> result;
-        string ipv6addressString = inet_ntop(AF_INET6, &ipv6address, result.data(), INET6_ADDRSTRLEN);
-        if (!ipv6addressString.empty()) {
-            cout << "IPv6 address:\t\t" << ipv6addressString << endl;
-        }
-
+        cout << "IPv6 address:\t\t" << Utils::ipv6ToString(ipv6address) << endl;
     }
     cout << "Physical address:\t";
     cout << Utils::formatMacAddress(physicalAddress, six_groups_of_two_hexa_digits_sep_colon);

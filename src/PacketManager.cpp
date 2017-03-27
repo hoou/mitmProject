@@ -1,4 +1,5 @@
 #include <thread>
+#include <iostream>
 #include "PacketManager.h"
 
 void PacketManager::init(NetworkInterface *networkInterface) {
@@ -65,4 +66,28 @@ void PacketManager::send(Packet *packet) {
 
     mtx.unlock();
 
+}
+
+void PacketManager::setupFilters() {
+    int status;
+    struct bpf_program filter;
+
+    /* no filter */
+    if (listenFilterExpression.empty())
+        return;
+
+    status = pcap_compile(listenPCAP_handle, &filter, listenFilterExpression.c_str(), 0, 0);
+    if (status == -1) {
+        throw runtime_error(pcap_geterr(listenPCAP_handle));
+    }
+
+    status = pcap_setfilter(listenPCAP_handle, &filter);
+    if (status == -1)
+        throw runtime_error(pcap_geterr(listenPCAP_handle));
+
+    pcap_freecode(&filter);
+}
+
+void PacketManager::setListenFilterExpression(const string &listenFilterExpression) {
+    PacketManager::listenFilterExpression = listenFilterExpression;
 }

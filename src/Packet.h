@@ -11,16 +11,17 @@ class Packet {
 protected:
     uint8_t *rawData;
     size_t length;
-
     struct ether_header ethernetHeader;
+
+    Packet(const uint8_t *data, size_t length);
+
+    virtual void setupHeaders()= 0;
 
     static struct ether_header constructEthernetHeader(
             uint16_t type,
             mac_addr source,
-            mac_addr destination = mac_addr()
+            mac_addr destination
     );
-
-    Packet(const uint8_t *data, size_t length);
 
 public:
     virtual ~Packet();

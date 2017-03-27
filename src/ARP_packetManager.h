@@ -20,14 +20,12 @@ private:
 
     ARP_packetManager();
 
-    void setupFilters() override;
-
     void processPacket(u_char *payload) override;
 
 public:
-    void clean() override;
-
     static ARP_packetManager *getInstance();
+
+    void clean() override;
 
     vector<ARP_packet *> &getCaughtARP_packets();
 };

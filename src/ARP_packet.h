@@ -22,8 +22,11 @@ private:
             in_addr targetProtocolAddr
     );
 
+protected:
+    void setupHeaders() override;
+
 public:
-    ARP_packet(uint8_t *data, size_t length);
+    ARP_packet(const uint8_t *data, size_t length);
 
     static ARP_packet * createRequest(
             mac_addr senderHardwareAddr,
