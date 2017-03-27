@@ -14,11 +14,12 @@ using namespace std;
 class NetworkInterface {
 private:
     string name;
-    in_addr address;
+    in_addr ipv4address;
+    vector<in6_addr> ipv6addresses;
     mac_addr physicalAddress;
     Subnet *subnet = nullptr;
 
-    void getAddressAndMask(in_addr &address, in_addr &mask);
+    void getAddressesAndMask(in_addr &ipv4address, vector<in6_addr> &ipv6addresses, in_addr &mask);
 
     void setPhysicalAddress();
 
