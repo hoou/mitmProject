@@ -17,9 +17,6 @@ int main(int argc, char **argv) {
 
         arp_packetManager->init(&networkInterface);
 
-        alarm(10);
-        signal(SIGALRM, alarmHandler);
-
         arp_packetManager->listen();
 
         vector<in_addr> allAvailableHostsAddresses = networkInterface.getSubnet()->getAllAvailableHostsAddresses();
@@ -34,7 +31,12 @@ int main(int argc, char **argv) {
             arp_packetManager->send(arpPacket);
 
             delete (arpPacket);
+
+            usleep(1);
         }
+
+        alarm(5);
+        signal(SIGALRM, alarmHandler);
 
         arp_packetManager->wait();
 

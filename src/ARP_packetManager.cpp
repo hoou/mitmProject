@@ -33,11 +33,6 @@ void ARP_packetManager::setupFilters() {
 void ARP_packetManager::processPacket(u_char *payload) {
     ARP_packet *arp_packet = new ARP_packet(payload, ETH_HLEN + sizeof(struct ether_arp));
 
-    for (int i = 0; i < arp_packet->getLength(); i++) {
-        cerr << (int) arp_packet->getRawData()[i] << " ";
-    }
-    cerr << endl;
-
     caughtArpPackets.push_back(arp_packet);
 }
 
