@@ -1,8 +1,8 @@
 #include <getopt.h>
 #include <stdexcept>
-#include "Arguments.h"
+#include "SpoofArguments.h"
 
-Arguments::Arguments(int argc, char **argv) {
+SpoofArguments::SpoofArguments(int argc, char **argv) {
     this->parse(argc, argv);
     if (interface == "" || file == "") {
         //TODO print usage
@@ -10,7 +10,7 @@ Arguments::Arguments(int argc, char **argv) {
     }
 }
 
-void Arguments::parse(int argc, char **argv) {
+void SpoofArguments::parse(int argc, char **argv) {
     int optionIndex = 0, c = 0;
     const struct option longOptions[] = {
             {"interface", required_argument, 0, 'i'},
@@ -33,10 +33,10 @@ void Arguments::parse(int argc, char **argv) {
     }
 }
 
-const string &Arguments::getInterface() const {
+const string &SpoofArguments::getInterface() const {
     return interface;
 }
 
-const string &Arguments::getFile() const {
+const string &SpoofArguments::getFile() const {
     return file;
 }

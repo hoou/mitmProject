@@ -1,7 +1,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <signal.h>
-#include "Arguments.h"
+#include "ScannerArguments.h"
 #include "ARP_packetManager.h"
 #include "HostsList.h"
 #include "ICMPv6_packetManager.h"
@@ -10,7 +10,7 @@ void alarmHandler(int sig);
 
 int main(int argc, char **argv) {
     try {
-        Arguments arguments(argc, argv);
+        ScannerArguments arguments(argc, argv);
         NetworkInterface networkInterface(arguments.getInterface());
         ARP_packetManager *arpPacketManager;
         ICMPv6_packetManager *icmpv6PacketManager;

@@ -6,7 +6,7 @@
 #include <linux/if_ether.h>
 #include <vector>
 #include <array>
-#include <Utils.h>
+#include <scanner/Utils.h>
 #include "Subnet.h"
 
 using namespace std;

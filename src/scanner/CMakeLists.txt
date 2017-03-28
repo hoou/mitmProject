@@ -1,28 +1,20 @@
-include_directories(.)
+include_directories(..)
 
 set(SOURCE_FILES
         main.cpp
-        Arguments.cpp
-        Arguments.h
+        ScannerArguments.cpp
         ARP_packetManager.cpp
-        ARP_packetManager.h
         NetworkInterface.cpp
-        NetworkInterface.h
         Subnet.cpp
-        Subnet.h
         Utils.cpp
-        Utils.h
         ARP_packet.cpp
-        ARP_packet.h
         HostsList.cpp
-        HostsList.h
         ICMPv6_packetManager.cpp
-        ICMPv6_packetManager.h
         PacketManager.cpp
-        PacketManager.h
         Packet.cpp
-        Packet.h
-        ICMPv6_packet.cpp ICMPv6_packet.h IIPv6_packet.cpp IIPv6_packet.h)
+        ICMPv6_packet.cpp
+        IIPv6_packet.cpp
+        )
 
 add_executable(pds-scanner ${SOURCE_FILES})
 

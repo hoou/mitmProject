@@ -1,9 +1,11 @@
-#ifndef PDS_MITM_ARGUMENTPARSER_H
-#define PDS_MITM_ARGUMENTPARSER_H
+#ifndef PDS_MITM_SCANNERARGUMENTS_H
+#define PDS_MITM_SCANNERARGUMENTS_H
+
+#include <string>
 
 using namespace std;
 
-class Arguments {
+class ScannerArguments {
 private:
     string interface = "";
     string file = "";
@@ -16,8 +18,8 @@ public:
 
     const string &getFile() const;
 
-    Arguments(int argc, char **argv);
+    ScannerArguments(int argc, char **argv);
 };
 
 
-#endif //PDS_MITM_ARGUMENTPARSER_H
+#endif //PDS_MITM_SCANNERARGUMENTS_H
