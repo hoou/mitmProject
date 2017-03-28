@@ -9,6 +9,12 @@ SpoofArguments::SpoofArguments(int argc, char **argv) {
     if (!iFlag || !tFlag || !pFlag || !v1ipFlag || !v1macFlag || !v2ipFlag || !v2macFlag) {
         throw InvalidArgumentsException("missing required arguments");
     }
+    if (protocol == "arp" && (!victim1Ipv4AddressFlag || !victim2Ipv4AddressFlag)) {
+        throw InvalidArgumentsException("ARP protocol chosen, expect IPv4 addresses");
+    } else if (protocol == "ndp" && (victim1Ipv4AddressFlag || victim2Ipv4AddressFlag)) {
+        throw InvalidArgumentsException("NDP protocol chosen, expect IPv6 addresses");
+    }
+
 }
 
 void SpoofArguments::parse(int argc, char **argv) {
