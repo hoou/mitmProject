@@ -15,8 +15,6 @@ int main(int argc, char **argv) {
         ARP_packetManager *arpPacketManager;
         ICMPv6_packetManager *icmpv6PacketManager;
 
-        networkInterface.print();
-
         arpPacketManager = ARP_packetManager::getInstance();
         icmpv6PacketManager = ICMPv6_packetManager::getInstance();
 
@@ -44,45 +42,32 @@ int main(int argc, char **argv) {
 
         icmpv6PacketManager->listen();
 
-        ICMPv6_packet *icmpv6Packet = ICMPv6_packet::createEchoRequest(
-                networkInterface.getPhysicalAddress(),
-                Utils::constructEthernetAllNodesMulticastAddress(),
-                networkInterface.getIpv6addresses().at(0),
-                Utils::constructIpv6AllNodesMulticastAddress()
-        );
-        ICMPv6_packet *malformedIcmpv6Packet = ICMPv6_packet::createMalformedEchoRequest(
-                networkInterface.getPhysicalAddress(),
-                Utils::constructEthernetAllNodesMulticastAddress(),
-                networkInterface.getIpv6addresses().at(0),
-                Utils::constructIpv6AllNodesMulticastAddress()
-        );
+        for (auto &myIPv6address : networkInterface.getIpv6addresses()) {
+            ICMPv6_packet *icmpv6Packet = ICMPv6_packet::createEchoRequest(
+                    networkInterface.getPhysicalAddress(),
+                    Utils::constructEthernetAllNodesMulticastAddress(),
+                    myIPv6address,
+                    Utils::constructIpv6AllNodesMulticastAddress()
+            );
+            ICMPv6_packet *malformedIcmpv6Packet = ICMPv6_packet::createMalformedEchoRequest(
+                    networkInterface.getPhysicalAddress(),
+                    Utils::constructEthernetAllNodesMulticastAddress(),
+                    myIPv6address,
+                    Utils::constructIpv6AllNodesMulticastAddress()
+            );
 
-        icmpv6PacketManager->send(icmpv6Packet);
-        icmpv6PacketManager->send(malformedIcmpv6Packet);
+            icmpv6PacketManager->send(icmpv6Packet);
+            icmpv6PacketManager->send(malformedIcmpv6Packet);
 
-        delete icmpv6Packet;
-        delete malformedIcmpv6Packet;
+            delete icmpv6Packet;
+            delete malformedIcmpv6Packet;
+        }
 
-        alarm(10);
+        alarm(20);
         signal(SIGALRM, alarmHandler);
 
         arpPacketManager->wait();
         icmpv6PacketManager->wait();
-
-/*
-        for (auto &icmp6packet : icmpv6PacketManager->getCaughtPackets()) {
-            cout << Utils::formatMacAddress(
-                    icmp6packet->getEthernetSourceAddress(),
-                    six_groups_of_two_hexa_digits_sep_colon
-            );
-            cout << "\t" << Utils::ipv6ToString(icmp6packet->getSourceAddress()) << endl;
-            cout << Utils::formatMacAddress(
-                    icmp6packet->getEthernetDestinationAddress(),
-                    six_groups_of_two_hexa_digits_sep_colon
-            );
-            cout << "\t" << Utils::ipv6ToString(icmp6packet->getDestinationAddress()) << endl << endl;
-        }
-*/
 
         HostsList hostsList(
                 arpPacketManager->getCaughtARP_packets(),
