@@ -17,6 +17,12 @@ enum MacAddressFormat {
 
 typedef array<uint8_t, (size_t) ETH_ALEN> mac_addr;
 
+class InvalidFormatException :  public runtime_error {
+public:
+    InvalidFormatException();
+    InvalidFormatException(const string &__arg);
+};
+
 class Utils {
 public:
     static unsigned long long calculateNumberOfAvailableHosts(in_addr subnetMask);
@@ -35,7 +41,17 @@ public:
 
     static string ipv6ToString(in6_addr address);
 
+    static string ipv4ToString(in_addr address);
+
     static string formatMacAddress(mac_addr address, MacAddressFormat format);
+
+    /**
+     * http://stackoverflow.com/a/20553913/4619907
+     *
+     * @param address
+     * @return
+     */
+    static mac_addr parseMacAddress(string address);
 
     static bool isZeroMacAddress(mac_addr address);
 };

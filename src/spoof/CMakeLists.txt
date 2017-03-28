@@ -3,6 +3,7 @@ include_directories(..)
 set(SOURCE_FILES
         main.cpp
         SpoofArguments.cpp
+        ../Utils.cpp
         )
 
 add_executable(pds-spoof ${SOURCE_FILES})

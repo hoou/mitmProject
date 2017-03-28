@@ -6,7 +6,7 @@ set(SOURCE_FILES
         ARP_packetManager.cpp
         NetworkInterface.cpp
         Subnet.cpp
-        Utils.cpp
+        ../Utils.cpp
         ARP_packet.cpp
         HostsList.cpp
         ICMPv6_packetManager.cpp

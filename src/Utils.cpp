@@ -2,6 +2,7 @@
 #include <cmath>
 #include <sstream>
 #include <cstring>
+#include <iostream>
 #include "Utils.h"
 
 unsigned long long Utils::calculateNumberOfAvailableHosts(in_addr subnetMask) {
@@ -54,7 +55,17 @@ string Utils::ipv6ToString(in6_addr address) {
     if (!ipv6addressString.empty()) {
         return ipv6addressString;
     } else {
-        return string();
+        throw InvalidFormatException();
+    }
+}
+
+string Utils::ipv4ToString(in_addr address) {
+    array<char, INET_ADDRSTRLEN> result;
+    string ipv4addressString = inet_ntop(AF_INET, &address, result.data(), INET_ADDRSTRLEN);
+    if (!ipv4addressString.empty()) {
+        return ipv4addressString;
+    } else {
+        throw InvalidFormatException();
     }
 }
 
@@ -95,6 +106,40 @@ string Utils::formatMacAddress(mac_addr address, MacAddressFormat format) {
     return string(buffer);
 }
 
+mac_addr Utils::parseMacAddress(string address) {
+    char values[ETH_ALEN];
+    uint8_t bytes[ETH_ALEN];
+    int i;
+
+    if (6 == (sscanf(address.c_str(), "%02hhx-%02hhx-%02hhx-%02hhx-%02hhx-%02hhx",
+                     &values[0], &values[1], &values[2],
+                     &values[3], &values[4], &values[5]))) {
+
+        /* convert to uint8_t */
+        for (i = 0; i < ETH_ALEN; ++i)
+            bytes[i] = (uint8_t) values[i];
+    } else if (6 == (sscanf(address.c_str(), "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
+                            &values[0], &values[1], &values[2],
+                            &values[3], &values[4], &values[5]))) {
+
+        /* convert to uint8_t */
+        for (i = 0; i < ETH_ALEN; ++i)
+            bytes[i] = (uint8_t) values[i];
+    } else if (6 == (sscanf(address.c_str(), "%02hhx%02hhx.%02hhx%02hhx.%02hhx%02hhx",
+                            &values[0], &values[1], &values[2],
+                            &values[3], &values[4], &values[5]))) {
+
+        /* convert to uint8_t */
+        for (i = 0; i < ETH_ALEN; ++i) {
+            bytes[i] = (uint8_t) values[i];
+        }
+    } else {
+        throw InvalidFormatException("mac address");
+    }
+
+    return constructMacAddressFromRawData(bytes);
+}
+
 bool Utils::isZeroMacAddress(mac_addr address) {
     return address.at(0) == 0 &&
            address.at(1) == 0 &&
@@ -103,3 +148,7 @@ bool Utils::isZeroMacAddress(mac_addr address) {
            address.at(4) == 0 &&
            address.at(5) == 0;
 }
+
+InvalidFormatException::InvalidFormatException() : runtime_error("Invalid format") {}
+
+InvalidFormatException::InvalidFormatException(const string &__arg) : runtime_error("Invalid format: " + __arg) {}
