@@ -24,6 +24,6 @@ set(SOURCE_FILES
         Packet.h
         ICMPv6_packet.cpp ICMPv6_packet.h IIPv6_packet.cpp IIPv6_packet.h)
 
-add_executable(projekt_new ${SOURCE_FILES})
+add_executable(pds-scanner ${SOURCE_FILES})
 
-target_link_libraries(projekt_new ${PCAP_LIBRARIES} ${LIBXML2_LIBRARIES})
+target_link_libraries(pds-scanner ${PCAP_LIBRARIES} ${LIBXML2_LIBRARIES})
