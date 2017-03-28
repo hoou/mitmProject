@@ -19,7 +19,7 @@ private:
 public:
     Subnet(const in_addr &address, const in_addr &mask);
 
-    vector<in_addr> getAllAvailableHostsAddresses();
+    vector<in_addr> getAllPossibleHostAddresses();
 
     const in_addr &getAddress() const;
 

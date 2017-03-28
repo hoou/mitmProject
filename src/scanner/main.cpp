@@ -22,13 +22,16 @@ int main(int argc, char **argv) {
 
         arpPacketManager->listen();
 
-        vector<in_addr> allAvailableHostsAddresses = networkInterface.getSubnet()->getAllAvailableHostsAddresses();
-        for (vector<in_addr>::iterator availableHostAddressIt = allAvailableHostsAddresses.begin();
-             availableHostAddressIt < allAvailableHostsAddresses.end(); availableHostAddressIt++) {
+        vector<in_addr> allPossibleHostAddresses = networkInterface.getSubnet()->getAllPossibleHostAddresses();
+        for (
+                vector<in_addr>::iterator possibleHostAddressIt = allPossibleHostAddresses.begin();
+                possibleHostAddressIt < allPossibleHostAddresses.end();
+                possibleHostAddressIt++
+                ) {
             ARP_packet *arpPacket = ARP_packet::createRequest(
-                    networkInterface.getPhysicalAddress(), // Sender hardware address
-                    networkInterface.getIpv4address(), // Sender protocol address
-                    *availableHostAddressIt // Target protocol address
+                    networkInterface.getPhysicalAddress(),
+                    networkInterface.getIpv4address(),
+                    *possibleHostAddressIt
             );
 
             arpPacketManager->send(arpPacket);

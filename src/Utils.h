@@ -29,6 +29,8 @@ public:
 
     static in_addr getSubnetAddress(in_addr hostAddress, in_addr subnetMask);
 
+    static mac_addr constructZeroMacAddress();
+
     static mac_addr constructMacAddressFromRawData(const uint8_t *data);
 
     static mac_addr constructEthernetBroadcastAddress();

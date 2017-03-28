@@ -4,6 +4,12 @@ set(SOURCE_FILES
         main.cpp
         SpoofArguments.cpp
         ../Utils.cpp
+        ../NetworkInterface.cpp
+        ../ARP_packet.cpp
+        ../ARP_packetManager.cpp
+        ../PacketManager.cpp
+        ../Packet.cpp
+        ../Subnet.cpp
         )
 
 add_executable(pds-spoof ${SOURCE_FILES})

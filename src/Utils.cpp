@@ -149,6 +149,10 @@ bool Utils::isZeroMacAddress(mac_addr address) {
            address.at(5) == 0;
 }
 
+mac_addr Utils::constructZeroMacAddress() {
+    return mac_addr{0, 0, 0, 0, 0, 0};
+}
+
 InvalidFormatException::InvalidFormatException() : runtime_error("Invalid format") {}
 
 InvalidFormatException::InvalidFormatException(const string &__arg) : runtime_error("Invalid format: " + __arg) {}
