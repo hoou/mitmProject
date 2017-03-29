@@ -6,6 +6,7 @@
 #include "NetworkInterface.h"
 #include "ARP_packetManager.h"
 #include "SpoofArguments.h"
+#include "ICMPv6_packetManager.h"
 
 bool loop = true;
 
@@ -16,12 +17,14 @@ int main(int argc, char **argv) {
         SpoofArguments arguments(argc, argv);
         NetworkInterface networkInterface(arguments.getInterface());
         ARP_packetManager *arpPacketManager;
+        ICMPv6_packetManager *icmpv6_packetManager;
 
         signal(SIGINT, interruptHandler);
         signal(SIGTERM, interruptHandler);
 
-        /* Perform ARP cache poison */
         if (arguments.getProtocol() == "arp") {
+            /* Perform ARP cache poison */
+
             arpPacketManager = ARP_packetManager::getInstance();
             arpPacketManager->init(&networkInterface);
             while (loop) {
@@ -68,6 +71,15 @@ int main(int argc, char **argv) {
             delete arpReply2;
 
             arpPacketManager->clean();
+        } else {
+            /* Perform NDP cache poison */
+
+            icmpv6_packetManager = ICMPv6_packetManager::getInstance();
+            icmpv6_packetManager->init(&networkInterface);
+
+            //TODO create neighbor advertisement packet and send it
+
+            icmpv6_packetManager->clean();
         }
     }
     catch (InvalidArgumentsException &e) {
