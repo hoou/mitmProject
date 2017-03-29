@@ -16,5 +16,4 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../build)
 
 add_definitions(${LIBXML2_DEFINITIONS})
 
-add_subdirectory(src/scanner)
-add_subdirectory(src/spoof)
+add_subdirectory(src)
