@@ -1,6 +1,9 @@
 #include <thread>
-#include <iostream>
 #include "PacketManager.h"
+
+PacketManager::~PacketManager() {
+
+}
 
 void PacketManager::init(NetworkInterface *networkInterface) {
     this->networkInterface = networkInterface;

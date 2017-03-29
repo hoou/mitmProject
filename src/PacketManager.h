@@ -31,6 +31,7 @@ protected:
     virtual void processPacket(u_char *payload, size_t length)=0;
 
 public:
+    virtual ~PacketManager();
 
     void init(NetworkInterface *networkInterface);
 
