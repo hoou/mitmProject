@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
         if (arguments.getProtocol() == "arp") {
             arpPacketManager = ARP_packetManager::getInstance();
             arpPacketManager->init(&networkInterface);
-            while(loop) {
+            while (loop) {
                 ARP_packet *arpReply1 = ARP_packet::createReply(
                         networkInterface.getPhysicalAddress(),
                         arguments.getVictim2Ipv4Address(),
@@ -46,10 +46,29 @@ int main(int argc, char **argv) {
 
                 usleep((__useconds_t) (arguments.getTime() * 1000));
             }
+
+            /* Reset APR cache tables */
+            ARP_packet *arpReply1 = ARP_packet::createReply(
+                    arguments.getVictim2MacAddress(),
+                    arguments.getVictim2Ipv4Address(),
+                    arguments.getVictim1MacAddress(),
+                    arguments.getVictim1Ipv4Address()
+            );
+            ARP_packet *arpReply2 = ARP_packet::createReply(
+                    arguments.getVictim1MacAddress(),
+                    arguments.getVictim1Ipv4Address(),
+                    arguments.getVictim2MacAddress(),
+                    arguments.getVictim2Ipv4Address()
+            );
+
+            arpPacketManager->send(arpReply1);
+            arpPacketManager->send(arpReply2);
+
+            delete arpReply1;
+            delete arpReply2;
+
             arpPacketManager->clean();
         }
-
-        //TODO reset cache
     }
     catch (InvalidArgumentsException &e) {
         cerr << e.what() << endl;
