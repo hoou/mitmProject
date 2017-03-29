@@ -6,15 +6,23 @@
 #include "NetworkInterface.h"
 #include "Packet.h"
 #include <thread>
+#include <vector>
 
+using namespace std;
+
+template<typename T>
 class PacketManager {
 private:
-    NetworkInterface *networkInterface;
+    static vector<PacketManager *> instances;
+    NetworkInterface &networkInterface;
     pcap_t *sendPCAP_handle;
 
     mutex mtx;
     thread listenThread;
     string listenFilterExpression;
+
+    T *lastCaughtPacket;
+    vector<Packet *> caughtPackets;
 
     void listenTask();
 
@@ -22,28 +30,33 @@ private:
 
     static void packetHandler(u_char *args, const struct pcap_pkthdr *header, const u_char *payload);
 
-protected:
-
     pcap_t *listenPCAP_handle;
 
-    void setListenFilterExpression(const string &listenFilterExpression);
+    void processPacket(u_char *payload, size_t length);
 
-    virtual void processPacket(u_char *payload, size_t length)=0;
+    void clean();
 
 public:
+
+    PacketManager(NetworkInterface &networkInterface);
+
+    PacketManager(NetworkInterface &networkInterface, string listenFilterExpression);
+
     virtual ~PacketManager();
 
-    void init(NetworkInterface *networkInterface);
+    void setListenFilterExpression(const string &listenFilterExpression);
 
     void listen();
 
     void stopListen();
 
-    virtual void send(Packet *packet);
+    void send(Packet *packet);
 
     void wait();
 
-    virtual void clean();
+    const vector<Packet *> &getCaughtPackets();
+
+    static const vector<PacketManager *> &getInstances();
 };
 
 

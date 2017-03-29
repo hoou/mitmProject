@@ -3,13 +3,11 @@ include_directories(.)
 set(SCANNER_SOURCE_FILES
         scanner.cpp
         ScannerArguments.cpp
-        ARP_packetManager.cpp
         NetworkInterface.cpp
         Subnet.cpp
         Utils.cpp
         ARP_packet.cpp
         HostsList.cpp
-        ICMPv6_packetManager.cpp
         PacketManager.cpp
         Packet.cpp
         ICMPv6_packet.cpp
@@ -22,7 +20,6 @@ set(SPOOF_SOURCE_FILES
         Utils.cpp
         NetworkInterface.cpp
         ARP_packet.cpp
-        ARP_packetManager.cpp
         PacketManager.cpp
         Packet.cpp
         Subnet.cpp

@@ -1,10 +1,10 @@
 #include <iostream>
 #include <unistd.h>
 #include <signal.h>
+#include "NetworkInterface.h"
 #include "ScannerArguments.h"
-#include "ARP_packetManager.h"
 #include "HostsList.h"
-#include "ICMPv6_packetManager.h"
+#include "PacketManager.h"
 
 void alarmHandler(int sig);
 
@@ -12,15 +12,10 @@ int main(int argc, char **argv) {
     try {
         ScannerArguments arguments(argc, argv);
         NetworkInterface networkInterface(arguments.getInterface());
-        ARP_packetManager *arpPacketManager;
-        ICMPv6_packetManager *icmpv6PacketManager;
+        PacketManager<ARP_packet> arpPacketManager(networkInterface, "arp");
+        PacketManager<ICMPv6_packet> icmpv6PacketManager(networkInterface, "icmp6");
 
-        arpPacketManager = ARP_packetManager::getInstance();
-        icmpv6PacketManager = ICMPv6_packetManager::getInstance();
-
-        arpPacketManager->init(&networkInterface);
-
-        arpPacketManager->listen();
+        arpPacketManager.listen();
 
         vector<in_addr> allPossibleHostAddresses = networkInterface.getSubnet()->getAllPossibleHostAddresses();
         for (
@@ -34,16 +29,14 @@ int main(int argc, char **argv) {
                     *possibleHostAddressIt
             );
 
-            arpPacketManager->send(arpPacket);
+            arpPacketManager.send(arpPacket);
 
             delete (arpPacket);
 
             usleep(1);
         }
 
-        icmpv6PacketManager->init(&networkInterface);
-
-        icmpv6PacketManager->listen();
+        icmpv6PacketManager.listen();
 
         for (auto &myIPv6address : networkInterface.getIpv6addresses()) {
             ICMPv6_packet *icmpv6Packet = ICMPv6_packet::createEchoRequest(
@@ -59,8 +52,8 @@ int main(int argc, char **argv) {
                     Utils::constructIpv6AllNodesMulticastAddress()
             );
 
-            icmpv6PacketManager->send(icmpv6Packet);
-            icmpv6PacketManager->send(malformedIcmpv6Packet);
+            icmpv6PacketManager.send(icmpv6Packet);
+            icmpv6PacketManager.send(malformedIcmpv6Packet);
 
             delete icmpv6Packet;
             delete malformedIcmpv6Packet;
@@ -69,17 +62,14 @@ int main(int argc, char **argv) {
         alarm(20);
         signal(SIGALRM, alarmHandler);
 
-        arpPacketManager->wait();
-        icmpv6PacketManager->wait();
+        arpPacketManager.wait();
+        icmpv6PacketManager.wait();
 
         HostsList hostsList(
-                arpPacketManager->getCaughtARP_packets(),
-                (vector<ICMPv6_packet *> &) icmpv6PacketManager->getCaughtPackets()
+                (vector<ARP_packet *> &) arpPacketManager.getCaughtPackets(),
+                (vector<ICMPv6_packet *> &) icmpv6PacketManager.getCaughtPackets()
         );
         hostsList.exportToXML(arguments.getFile());
-
-        arpPacketManager->clean();
-        icmpv6PacketManager->clean();
 
     } catch (exception &e) {
         cerr << e.what() << endl;
@@ -90,6 +80,13 @@ int main(int argc, char **argv) {
 }
 
 void alarmHandler(int sig) {
-    ARP_packetManager::getInstance()->stopListen();
-    ICMPv6_packetManager::getInstance()->stopListen();
+    vector<PacketManager<ARP_packet> *> arpInstances = PacketManager<ARP_packet>::getInstances();
+    for (auto &instance : arpInstances) {
+        instance->stopListen();
+    }
+
+    vector<PacketManager<ICMPv6_packet> *> icmpInstances = PacketManager<ICMPv6_packet>::getInstances();
+    for (auto &instance : icmpInstances) {
+        instance->stopListen();
+    }
 }

@@ -1,35 +1,57 @@
 #include <thread>
 #include "PacketManager.h"
+#include "ARP_packet.h"
+#include "ICMPv6_packet.h"
 
-PacketManager::~PacketManager() {
+template<typename T>
+vector<PacketManager<T> *> PacketManager<T>::instances;
 
-}
-
-void PacketManager::init(NetworkInterface *networkInterface) {
-    this->networkInterface = networkInterface;
+template<typename T>
+PacketManager<T>::PacketManager(NetworkInterface &networkInterface) : networkInterface(networkInterface) {
+    instances.push_back(this);
 
     /* Initialize pcap handle for sending packets */
     char errorBuffer[PCAP_ERRBUF_SIZE];
-    sendPCAP_handle = pcap_open_live(networkInterface->getName().c_str(), 96, 1, 0, errorBuffer);
+    sendPCAP_handle = pcap_open_live(networkInterface.getName().c_str(), 96, 1, 0, errorBuffer);
     if (sendPCAP_handle == NULL)
         throw runtime_error(errorBuffer);
 }
 
-void PacketManager::clean() {
+template<typename T>
+PacketManager<T>::PacketManager(
+        NetworkInterface &networkInterface,
+        string listenFilterExpression
+) : PacketManager(networkInterface) {
+    setListenFilterExpression(listenFilterExpression);
+}
+
+template<typename T>
+PacketManager<T>::~PacketManager() {
+    clean();
+}
+
+template<typename T>
+void PacketManager<T>::clean() {
     if (sendPCAP_handle != nullptr && sendPCAP_handle != NULL) {
         pcap_close(sendPCAP_handle);
     }
+
+    for (auto &packet : caughtPackets) {
+        delete (packet);
+    }
 }
 
-void PacketManager::listen() {
+template<typename T>
+void PacketManager<T>::listen() {
     mtx.lock();
     listenThread = thread(&PacketManager::listenTask, this);
 }
 
-void PacketManager::listenTask() {
+template<typename T>
+void PacketManager<T>::listenTask() {
     char errorBuffer[PCAP_ERRBUF_SIZE];
 
-    listenPCAP_handle = pcap_open_live(networkInterface->getName().c_str(), 1024, 0, 1000, errorBuffer);
+    listenPCAP_handle = pcap_open_live(networkInterface.getName().c_str(), 1024, 0, 1000, errorBuffer);
     if (listenPCAP_handle == NULL) {
         throw runtime_error(errorBuffer);
     }
@@ -43,20 +65,24 @@ void PacketManager::listenTask() {
     pcap_close(listenPCAP_handle);
 }
 
-void PacketManager::packetHandler(u_char *args, const struct pcap_pkthdr *header, const u_char *payload) {
+template<typename T>
+void PacketManager<T>::packetHandler(u_char *args, const struct pcap_pkthdr *header, const u_char *payload) {
     PacketManager *packetManager = reinterpret_cast<PacketManager *>(args);
     packetManager->processPacket((u_char *) payload, header->caplen);
 }
 
-void PacketManager::stopListen() {
+template<typename T>
+void PacketManager<T>::stopListen() {
     pcap_breakloop(listenPCAP_handle);
 }
 
-void PacketManager::wait() {
+template<typename T>
+void PacketManager<T>::wait() {
     listenThread.join();
 }
 
-void PacketManager::send(Packet *packet) {
+template<typename T>
+void PacketManager<T>::send(Packet *packet) {
     int status;
 
     /* Wait for beginning of pcap_loop */
@@ -71,7 +97,8 @@ void PacketManager::send(Packet *packet) {
 
 }
 
-void PacketManager::setupFilters() {
+template<typename T>
+void PacketManager<T>::setupFilters() {
     int status;
     struct bpf_program filter;
 
@@ -91,6 +118,29 @@ void PacketManager::setupFilters() {
     pcap_freecode(&filter);
 }
 
-void PacketManager::setListenFilterExpression(const string &listenFilterExpression) {
+template<typename T>
+void PacketManager<T>::setListenFilterExpression(const string &listenFilterExpression) {
     PacketManager::listenFilterExpression = listenFilterExpression;
 }
+
+template<typename T>
+void PacketManager<T>::processPacket(u_char *payload, size_t length) {
+    lastCaughtPacket = new T(payload, length);
+    caughtPackets.push_back(lastCaughtPacket);
+}
+
+template<typename T>
+const vector<Packet *> &PacketManager<T>::getCaughtPackets() {
+    return caughtPackets;
+}
+
+template<typename T>
+const vector<PacketManager<T> *> &PacketManager<T>::getInstances() {
+    return instances;
+}
+
+template
+class PacketManager<ARP_packet>;
+
+template
+class PacketManager<ICMPv6_packet>;
