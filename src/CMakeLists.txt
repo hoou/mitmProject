@@ -23,6 +23,8 @@ set(SPOOF_SOURCE_FILES
         PacketManager.cpp
         Packet.cpp
         Subnet.cpp
+        ICMPv6_packet.cpp
+        IIPv6_packet.cpp
         )
 
 add_executable(pds-scanner ${SCANNER_SOURCE_FILES})
