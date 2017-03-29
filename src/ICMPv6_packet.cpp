@@ -6,6 +6,14 @@ ICMPv6_packet::ICMPv6_packet(const uint8_t *data, size_t length) : Packet(data, 
     setupHeaders();
 }
 
+struct nd_neighbor_advert ICMPv6_packet::constructNeighborAdvertisementHeader(const in6_addr &targetAddress) {
+    struct nd_neighbor_advert neighborAdvertisementHeader;
+    neighborAdvertisementHeader.nd_na_hdr = constructICMP6header(ND_NEIGHBOR_ADVERT, 0);
+    neighborAdvertisementHeader.nd_na_flags_reserved = ND_NA_FLAG_SOLICITED | ND_NA_FLAG_OVERRIDE;
+    neighborAdvertisementHeader.nd_na_target = targetAddress;
+    return neighborAdvertisementHeader;
+}
+
 void ICMPv6_packet::setupHeaders() {
     memcpy(&ipv6Header, rawData + ETH_HLEN, sizeof(uint8_t) * IP6_HDRLEN);
 
@@ -14,6 +22,13 @@ void ICMPv6_packet::setupHeaders() {
     ipv6PayloadLength = htons(ipv6PayloadLength);
 
     memcpy(&icmp6Header, rawData + ETH_HLEN + IP6_HDRLEN, sizeof(icmp6Header) * sizeof(uint8_t));
+}
+
+struct nd_opt_hdr ICMPv6_packet::constructTargetLinkAddressOptionHeader(uint8_t targetLinkAddressOptionLength) {
+    struct nd_opt_hdr targetLinkAddressOptionHeader;
+    targetLinkAddressOptionHeader.nd_opt_len = targetLinkAddressOptionLength;
+    targetLinkAddressOptionHeader.nd_opt_type = ND_OPT_TARGET_LINKADDR;
+    return targetLinkAddressOptionHeader;
 }
 
 ICMPv6_packet *ICMPv6_packet::createEchoRequest(
@@ -27,18 +42,23 @@ ICMPv6_packet *ICMPv6_packet::createEchoRequest(
     ICMPv6_packet *icmPv6Packet;
 
     struct ether_header etherHeader = constructEthernetHeader(ETH_P_IPV6, senderHardwareAddress, targetHardwareAddress);
-    struct ip6_hdr ipv6header = constructIPv6Header(ICMP_HDRLEN, IPPROTO_ICMPV6, sourceAddress, destinationAddress);
+    struct ip6_hdr ipv6header = constructIPv6Header(
+            ICMP_ECHO_REQUEST_HDRLEN,
+            IPPROTO_ICMPV6,
+            sourceAddress,
+            destinationAddress
+    );
     struct icmp6_hdr icmp6Header = constructICMP6header(ICMP6_ECHO_REQUEST, 0);
 
     /* Checksum */
     icmp6Header.icmp6_cksum = icmp6_checksum(ipv6header, icmp6Header, NULL, 0);
 
-    length = ETH_HLEN + IP6_HDRLEN + ICMP_HDRLEN;
+    length = ETH_HLEN + IP6_HDRLEN + ICMP_ECHO_REQUEST_HDRLEN;
 
     data = (uint8_t *) malloc(length * sizeof(uint8_t));
     memcpy(data, &etherHeader, ETH_HLEN * sizeof(uint8_t));
     memcpy(data + ETH_HLEN, &ipv6header, IP6_HDRLEN * sizeof(uint8_t));
-    memcpy(data + ETH_HLEN + IP6_HDRLEN, &icmp6Header, ICMP_HDRLEN * sizeof(uint8_t));
+    memcpy(data + ETH_HLEN + IP6_HDRLEN, &icmp6Header, ICMP_ECHO_REQUEST_HDRLEN * sizeof(uint8_t));
 
     icmPv6Packet = new ICMPv6_packet(data, length);
 
@@ -66,7 +86,7 @@ ICMPv6_packet *ICMPv6_packet::createMalformedEchoRequest(
     );
 
     struct ip6_hdr ipv6header = constructIPv6Header(
-            (uint16_t) (ICMP_HDRLEN + destinationOptionsHeader.size()),
+            (uint16_t) (ICMP_ECHO_REQUEST_HDRLEN + destinationOptionsHeader.size()),
             IPPROTO_DSTOPTS,
             sourceAddress,
             destinationAddress
@@ -77,13 +97,75 @@ ICMPv6_packet *ICMPv6_packet::createMalformedEchoRequest(
     /* Checksum */
     icmp6Header.icmp6_cksum = icmp6_checksum(ipv6header, icmp6Header, NULL, 0);
 
-    length = ETH_HLEN + IP6_HDRLEN + ICMP_HDRLEN + destinationOptionsHeader.size();
+    length = ETH_HLEN + IP6_HDRLEN + ICMP_ECHO_REQUEST_HDRLEN + destinationOptionsHeader.size();
 
     data = (uint8_t *) malloc(length * sizeof(uint8_t));
     memcpy(data, &etherHeader, ETH_HLEN * sizeof(uint8_t));
     memcpy(data + ETH_HLEN, &ipv6header, IP6_HDRLEN * sizeof(uint8_t));
-    memcpy(data + ETH_HLEN + IP6_HDRLEN, destinationOptionsHeader.data(), destinationOptionsHeader.size() * sizeof(uint8_t));
-    memcpy(data + ETH_HLEN + IP6_HDRLEN + destinationOptionsHeader.size(), &icmp6Header, ICMP_HDRLEN * sizeof(uint8_t));
+    memcpy(data + ETH_HLEN + IP6_HDRLEN,
+           destinationOptionsHeader.data(),
+           destinationOptionsHeader.size() * sizeof(uint8_t)
+    );
+    memcpy(data + ETH_HLEN + IP6_HDRLEN + destinationOptionsHeader.size(),
+           &icmp6Header,
+           ICMP_ECHO_REQUEST_HDRLEN * sizeof(uint8_t)
+    );
+
+    icmPv6Packet = new ICMPv6_packet(data, length);
+
+    free(data);
+
+    return icmPv6Packet;
+}
+
+ICMPv6_packet *ICMPv6_packet::createNeighborAdvertisement(
+        mac_addr senderHardwareAddress,
+        in6_addr sourceAddress,
+        mac_addr targetHardwareAddress,
+        in6_addr destinationAddress
+) {
+    uint8_t *data;
+    size_t length;
+    ICMPv6_packet *icmPv6Packet;
+
+    struct ether_header etherHeader = constructEthernetHeader(ETH_P_IPV6, senderHardwareAddress, targetHardwareAddress);
+    struct ip6_hdr ipv6header = constructIPv6Header(
+            ICMP_NEIGH_ADV_HDRLEN,
+            IPPROTO_ICMPV6,
+            sourceAddress,
+            destinationAddress
+    );
+    struct nd_neighbor_advert neighborAdvertisementHeader = constructNeighborAdvertisementHeader(sourceAddress);
+    struct nd_opt_hdr targetLinkAddressOptionHeader = constructTargetLinkAddressOptionHeader(1);
+    mac_addr targetLinkAddress = senderHardwareAddress;
+
+    size_t icmpPayloadLength = sizeof(struct in6_addr) + sizeof(struct nd_opt_hdr) + ETH_ALEN;
+    uint8_t *icmpPayload = (uint8_t *) malloc(sizeof(uint8_t) * icmpPayloadLength);
+    memcpy(icmpPayload, &neighborAdvertisementHeader.nd_na_target, sizeof(struct in6_addr));
+    memcpy(icmpPayload + sizeof(struct in6_addr), &targetLinkAddressOptionHeader, sizeof(struct nd_opt_hdr));
+    memcpy(icmpPayload + sizeof(struct in6_addr) + sizeof(struct nd_opt_hdr), targetLinkAddress.data(), ETH_ALEN);
+
+    /* Checksum */
+    neighborAdvertisementHeader.nd_na_hdr.icmp6_cksum = icmp6_checksum(
+            ipv6header,
+            neighborAdvertisementHeader.nd_na_hdr,
+            icmpPayload,
+            icmpPayloadLength
+    );
+
+    free(icmpPayload);
+
+    length = ETH_HLEN + IP6_HDRLEN + ICMP_NEIGH_ADV_HDRLEN;
+
+    data = (uint8_t *) malloc(length * sizeof(uint8_t));
+    memcpy(data, &etherHeader, ETH_HLEN * sizeof(uint8_t));
+    memcpy(data + ETH_HLEN, &ipv6header, IP6_HDRLEN * sizeof(uint8_t));
+    memcpy(data + ETH_HLEN + IP6_HDRLEN, &neighborAdvertisementHeader,
+           sizeof(struct nd_neighbor_advert) * sizeof(uint8_t));
+    memcpy(data + ETH_HLEN + IP6_HDRLEN + sizeof(struct nd_neighbor_advert), &targetLinkAddressOptionHeader,
+           sizeof(struct nd_opt_hdr) * sizeof(uint8_t));
+    memcpy(data + ETH_HLEN + IP6_HDRLEN + sizeof(struct nd_neighbor_advert) + sizeof(struct nd_opt_hdr),
+           &targetLinkAddress, ETH_ALEN);
 
     icmPv6Packet = new ICMPv6_packet(data, length);
 
@@ -124,7 +206,7 @@ uint16_t ICMPv6_packet::icmp6_checksum(
         struct ip6_hdr iphdr,
         struct icmp6_hdr icmp6hdr,
         uint8_t *payload,
-        int payloadlen
+        size_t payloadlen
 ) {
     char buf[IP_MAXPACKET];
     char *ptr;
@@ -149,9 +231,9 @@ uint16_t ICMPv6_packet::icmp6_checksum(
     ptr++;
     *ptr = 0;
     ptr++;
-    *ptr = (char) ((ICMP_HDRLEN + payloadlen) / 256);
+    *ptr = (char) ((ICMP_ECHO_REQUEST_HDRLEN + payloadlen) / 256);
     ptr++;
-    *ptr = (char) ((ICMP_HDRLEN + payloadlen) % 256);
+    *ptr = (char) ((ICMP_ECHO_REQUEST_HDRLEN + payloadlen) % 256);
     ptr++;
     chksumlen += 4;
 

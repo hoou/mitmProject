@@ -12,7 +12,8 @@
  * icmp6_ll.c
  *
  */
-#define ICMP_HDRLEN 8  // ICMP header length for echo request, excludes data
+#define ICMP_ECHO_REQUEST_HDRLEN 8  // ICMP header length for echo request, excludes data
+#define ICMP_NEIGH_ADV_HDRLEN 32 // ICMP header length for neighbor advertisement
 #define IP6_HDRLEN 40  // IPv6 header length
 
 class ICMPv6_packet : public Packet, public IIPv6_packet {
@@ -20,6 +21,10 @@ private:
     struct icmp6_hdr icmp6Header;
 
     static icmp6_hdr constructICMP6header(uint8_t type, uint8_t code);
+
+    static nd_neighbor_advert constructNeighborAdvertisementHeader(const in6_addr &targetAddress);
+
+    static nd_opt_hdr constructTargetLinkAddressOptionHeader(uint8_t targetLinkAddressOptionLength);
 
     /**
      * Build IPv6 ICMP pseudo-header and call checksum function (Section 8.1 of RFC 2460).
@@ -34,7 +39,7 @@ private:
      * @param payloadlen
      * @return
      */
-    static uint16_t icmp6_checksum(ip6_hdr iphdr, icmp6_hdr icmp6hdr, uint8_t *payload, int payloadlen);
+    static uint16_t icmp6_checksum(ip6_hdr iphdr, icmp6_hdr icmp6hdr, uint8_t *payload, size_t payloadlen);
 
     /**
      * Computing the internet checksum (RFC 1071).
@@ -51,6 +56,7 @@ private:
     static uint16_t checksum(uint16_t *addr, int len);
 
 protected:
+
     void setupHeaders() override;
 
 public:
@@ -68,6 +74,13 @@ public:
             mac_addr senderHardwareAddress,
             mac_addr targetHardwareAddress,
             in6_addr sourceAddress,
+            in6_addr destinationAddress
+    );
+
+    static ICMPv6_packet *createNeighborAdvertisement(
+            mac_addr senderHardwareAddress,
+            in6_addr sourceAddress,
+            mac_addr targetHardwareAddress,
             in6_addr destinationAddress
     );
 };

