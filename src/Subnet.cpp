@@ -13,7 +13,7 @@ Subnet::Subnet(const in_addr &address, const in_addr &mask) : address(address), 
 
 vector<in_addr> Subnet::getAllPossibleHostAddresses() {
     vector<in_addr> addresses;
-    for (int i = 0; i < getNumberOfAvailableHosts(); i++) {
+    for (unsigned int i = 0; i < getNumberOfAvailableHosts(); i++) {
         in_addr address;
         address.s_addr = ntohl(htonl(getFirstAvailableHostAddress().s_addr) + i);
         addresses.push_back(address);

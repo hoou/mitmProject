@@ -45,7 +45,7 @@ vector<uint8_t> IIPv6_packet::constructDestinationOptionsHeader(uint8_t nextHead
 
     vector<uint8_t> result((uint8_t *) (&optionsHeader), ((uint8_t *) (&optionsHeader)) + sizeof(struct ip6_dest));
 
-    for (int i = 0; i < options.size(); i++) {
+    for (size_t i = 0; i < options.size(); i++) {
         result.push_back(options[i]);
     }
 
