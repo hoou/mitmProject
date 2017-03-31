@@ -4,12 +4,24 @@
 #include "NetworkInterface.h"
 #include "Packet.h"
 #include "InterceptPacketManager.h"
+#include "HostsList.h"
 
 void interruptHandler(int sig);
 
 int main(int argc, char *argv[]) {
     try {
         ScannerArguments arguments(argc, argv);
+
+
+        HostsList hostsList;
+        hostsList.importFromXML(arguments.getFile());
+
+        for (auto &host : hostsList.getHosts()) {
+            cout << host << endl << endl;
+        }
+
+        return EXIT_SUCCESS;
+
         NetworkInterface networkInterface(arguments.getInterface());
         InterceptPacketManager packetManager1(networkInterface, "src");
 

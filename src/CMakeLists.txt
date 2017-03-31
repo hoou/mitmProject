@@ -41,6 +41,7 @@ set(INTERCEPT_SOURCE_FILES
         IIPv6_packet.cpp
         InterceptPacketManager.cpp
         Host.cpp
+        HostsList.cpp
         )
 
 add_executable(pds-scanner ${SCANNER_SOURCE_FILES})
@@ -53,4 +54,4 @@ target_link_libraries(pds-scanner ${PCAP_LIBRARIES} ${LIBXML2_LIBRARIES})
 
 target_link_libraries(pds-spoof ${PCAP_LIBRARIES})
 
-target_link_libraries(pds-intercept ${PCAP_LIBRARIES})
+target_link_libraries(pds-intercept ${PCAP_LIBRARIES} ${LIBXML2_LIBRARIES})

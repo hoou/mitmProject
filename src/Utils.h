@@ -45,6 +45,10 @@ public:
 
     static string ipv4ToString(in_addr address);
 
+    static in_addr stringToIpv4(string address);
+
+    static in6_addr stringToIpv6(string address);
+
     static string formatMacAddress(mac_addr address, MacAddressFormat format);
 
     /**

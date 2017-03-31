@@ -153,6 +153,30 @@ mac_addr Utils::constructZeroMacAddress() {
     return mac_addr{0, 0, 0, 0, 0, 0};
 }
 
+in_addr Utils::stringToIpv4(string address) {
+    in_addr res;
+    int status;
+
+    status = inet_pton(AF_INET, address.c_str(), &res);
+    if (status == 1) {
+        return res;
+    } else {
+        throw InvalidFormatException(address);
+    }
+}
+
+in6_addr Utils::stringToIpv6(string address) {
+    in6_addr res;
+    int status;
+
+    status = inet_pton(AF_INET6, address.c_str(), &res);
+    if (status == 1) {
+        return res;
+    } else {
+        throw InvalidFormatException(address);
+    }
+}
+
 InvalidFormatException::InvalidFormatException() : runtime_error("Invalid format") {}
 
 InvalidFormatException::InvalidFormatException(const string &__arg) : runtime_error("Invalid format: " + __arg) {}

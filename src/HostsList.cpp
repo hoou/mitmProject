@@ -1,6 +1,7 @@
 #include <iostream>
-#include <libxml/parser.h>
 #include <netinet/in.h>
+#include <fstream>
+#include <libxml/xmlreader.h>
 
 #include "HostsList.h"
 
@@ -8,6 +9,10 @@ HostsList::HostsList() {}
 
 HostsList::HostsList(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *> &icmpv6Packets) {
     insert(arpPackets, icmpv6Packets);
+}
+
+HostsList::HostsList(string filename) {
+    importFromXML(filename);
 }
 
 void HostsList::insert(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *> &icmpv6Packets) {
@@ -92,12 +97,92 @@ void HostsList::exportToXML(string filename) {
         throw runtime_error("Cannot create output XML file");
 }
 
+/* http://www.xmlsoft.org/examples/reader1.c */
+void HostsList::importFromXML(string filename) {
+    xmlTextReaderPtr reader;
+    int ret = 0;
+    const xmlChar *name, *value, *attr;
+    string nodeName;
+    string lastNodeName;
+    mac_addr lastMacAddress;
+
+    reader = xmlReaderForFile(filename.c_str(), NULL, 0);
+    if (reader != NULL) {
+        ret = xmlTextReaderRead(reader);
+        while (ret == 1) {
+            name = xmlTextReaderConstName(reader);
+            if (name == NULL)
+                name = BAD_CAST "--";
+            nodeName = string((char *) name);
+
+            if (nodeName == "host") {
+                attr = xmlTextReaderGetAttribute(reader, BAD_CAST "mac");
+                if (attr == NULL)
+                    throw runtime_error("Host node is missing mac attribute");
+
+                lastMacAddress = Utils::parseMacAddress((char *) attr);
+                hosts.insert(Host(lastMacAddress));
+            } else if (lastNodeName == "ipv4" && xmlTextReaderNodeType(reader) == 3) {
+                value = xmlTextReaderValue(reader);
+                if (value == NULL)
+                    throw runtime_error("IPv4 node is missing value");
+
+                set<Host>::iterator it = hosts.find(Host(lastMacAddress));
+                Host modifiedHost = (*it);
+                modifiedHost.addIpv4Address(Utils::stringToIpv4((char *) value));
+                hosts.erase(it);
+                hosts.insert(modifiedHost);
+            } else if (lastNodeName == "ipv6" && xmlTextReaderNodeType(reader) == 3) {
+                value = xmlTextReaderValue(reader);
+                if (value == NULL)
+                    throw runtime_error("IPv6 node is missing value");
+
+                set<Host>::iterator it = hosts.find(Host(lastMacAddress));
+                Host modifiedHost = (*it);
+                modifiedHost.addIpv6Address(Utils::stringToIpv6((char *) value));
+                hosts.erase(it);
+                hosts.insert(modifiedHost);
+            }
+
+            lastNodeName = nodeName;
+            ret = xmlTextReaderRead(reader);
+        }
+        xmlFreeTextReader(reader);
+
+    }
+    xmlCleanupParser();
+
+    if (reader == NULL) {
+        throw runtime_error("Unable to open \'" + filename + "\'");
+    }
+
+    if (ret != 0) {
+        throw runtime_error("Failed to parse \'" + filename + "\'");
+    }
+}
+
 void HostsList::remove(mac_addr address) {
     hosts.erase(Host(address));
 }
 
 set<Host>::iterator HostsList::find(mac_addr address) {
     return hosts.find(Host(address));
+}
+
+void HostsList::print_element_names(xmlNode *a_node) {
+    xmlNode *cur_node = NULL;
+
+    for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            printf("node type: Element, name: %s\n", cur_node->name);
+        }
+
+        print_element_names(cur_node->children);
+    }
+}
+
+const set<Host> &HostsList::getHosts() const {
+    return hosts;
 }
 
 bool operator<(const Host a, const Host b) {
