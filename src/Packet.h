@@ -13,9 +13,7 @@ protected:
     size_t length;
     struct ether_header ethernetHeader;
 
-    Packet(const uint8_t *data, size_t length);
-
-    virtual void setupHeaders()= 0;
+    virtual void setupHeaders();
 
     static struct ether_header constructEthernetHeader(
             uint16_t type,
@@ -24,6 +22,8 @@ protected:
     );
 
 public:
+    Packet(const uint8_t *data, size_t length);
+
     virtual ~Packet();
 
     uint8_t *getRawData() const;

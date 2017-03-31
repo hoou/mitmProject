@@ -53,7 +53,9 @@ int main(int argc, char **argv) {
             );
 
             icmpv6PacketManager.send(icmpv6Packet);
+            usleep(1);
             icmpv6PacketManager.send(malformedIcmpv6Packet);
+            usleep(1);
 
             delete icmpv6Packet;
             delete malformedIcmpv6Packet;

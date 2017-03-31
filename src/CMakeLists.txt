@@ -12,6 +12,7 @@ set(SCANNER_SOURCE_FILES
         Packet.cpp
         ICMPv6_packet.cpp
         IIPv6_packet.cpp
+        Host.cpp
         )
 
 set(SPOOF_SOURCE_FILES
@@ -27,10 +28,29 @@ set(SPOOF_SOURCE_FILES
         IIPv6_packet.cpp
         )
 
+set(INTERCEPT_SOURCE_FILES
+        intercept.cpp
+        ScannerArguments.cpp
+        NetworkInterface.cpp
+        Packet.cpp
+        PacketManager.cpp
+        Utils.cpp
+        Subnet.cpp
+        ARP_packet.cpp
+        ICMPv6_packet.cpp
+        IIPv6_packet.cpp
+        InterceptPacketManager.cpp
+        Host.cpp
+        )
+
 add_executable(pds-scanner ${SCANNER_SOURCE_FILES})
 
 add_executable(pds-spoof ${SPOOF_SOURCE_FILES})
 
+add_executable(pds-intercept ${INTERCEPT_SOURCE_FILES})
+
 target_link_libraries(pds-scanner ${PCAP_LIBRARIES} ${LIBXML2_LIBRARIES})
 
 target_link_libraries(pds-spoof ${PCAP_LIBRARIES})
+
+target_link_libraries(pds-intercept ${PCAP_LIBRARIES})

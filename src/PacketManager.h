@@ -32,9 +32,10 @@ private:
 
     pcap_t *listenPCAP_handle;
 
-    void processPacket(u_char *payload, size_t length);
-
     void clean();
+
+protected:
+    virtual void processPacket(u_char *payload, size_t length);
 
 public:
 

@@ -10,54 +10,46 @@ HostsList::HostsList(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *> &
     insert(arpPackets, icmpv6Packets);
 }
 
-bool operator<(in6_addr a, in6_addr b) {
-    char aStr[INET6_ADDRSTRLEN];
-    char bStr[INET6_ADDRSTRLEN];
-
-    inet_ntop(AF_INET6, &a, aStr, INET6_ADDRSTRLEN);
-    inet_ntop(AF_INET6, &b, bStr, INET6_ADDRSTRLEN);
-
-    return string(aStr) != string(bStr);
-}
-
 void HostsList::insert(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *> &icmpv6Packets) {
+    set<Host>::iterator it;
+
     for (auto &arpPacket : arpPackets) {
-        map<mac_addr, pair<vector<in_addr>, set<in6_addr>>>::iterator it;
-
         if (!Utils::isZeroMacAddress(arpPacket->getSenderHardwareAddr())) {
-            it = macAddressMap.find(arpPacket->getSenderHardwareAddr());
+            it = find(arpPacket->getSenderHardwareAddr());
 
-            if (it == macAddressMap.end()) {
-                vector<in_addr> ipv4addresses{arpPacket->getSenderProtocolAddr()};
-                set<in6_addr> ipv6addresses;
-                pair<vector<in_addr>, set<in6_addr>> addresses{ipv4addresses, ipv6addresses};
-                macAddressMap.insert(pair<mac_addr, pair<vector<in_addr>, set<in6_addr>>>(arpPacket->getSenderHardwareAddr(), addresses));
+            if (it == hosts.end()) {
+                Host newHost(arpPacket->getSenderHardwareAddr());
+                newHost.addIpv4Address(arpPacket->getSenderProtocolAddr());
+                hosts.insert(newHost);
             }
         }
 
         if (!Utils::isZeroMacAddress(arpPacket->getTargetHardwareAddr())) {
-            it = macAddressMap.find(arpPacket->getTargetHardwareAddr());
+            it = find(arpPacket->getTargetHardwareAddr());
 
-            if (it == macAddressMap.end()) {
-                vector<in_addr> ipv4addresses{arpPacket->getSenderProtocolAddr()};
-                set<in6_addr> ipv6addresses;
-                pair<vector<in_addr>, set<in6_addr>> addresses{ipv4addresses, ipv6addresses};
-                macAddressMap.insert(pair<mac_addr, pair<vector<in_addr>, set<in6_addr>>>(arpPacket->getTargetHardwareAddr(), addresses));
+            if (it == hosts.end()) {
+                Host newHost(arpPacket->getTargetHardwareAddr());
+                newHost.addIpv4Address(arpPacket->getTargetProtocolAddr());
+                hosts.insert(newHost);
             }
         }
     }
 
-    for(auto &icmpPacket : icmpv6Packets) {
-        map<mac_addr, pair<vector<in_addr>, set<in6_addr>>>::iterator it;
-
-        it = macAddressMap.find(icmpPacket->getEthernetSourceAddress());
-        if (it != macAddressMap.end()) {
-            it->second.second.insert(icmpPacket->getSourceAddress());
+    for (auto &icmpPacket : icmpv6Packets) {
+        it = hosts.find(Host(icmpPacket->getEthernetSourceAddress()));
+        if (it != hosts.end()) {
+            Host modifiedHost = *it;
+            modifiedHost.addIpv6Address(icmpPacket->getSourceAddress());
+            hosts.erase(it);
+            hosts.insert(modifiedHost);
         }
 
-        it = macAddressMap.find(icmpPacket->getEthernetDestinationAddress());
-        if (it != macAddressMap.end()) {
-            it->second.second.insert(icmpPacket->getDestinationAddress());
+        it = hosts.find(Host(icmpPacket->getEthernetDestinationAddress()));
+        if (it != hosts.end()) {
+            Host modifiedHost = *it;
+            modifiedHost.addIpv6Address(icmpPacket->getDestinationAddress());
+            hosts.erase(it);
+            hosts.insert(modifiedHost);
         }
     }
 }
@@ -72,23 +64,22 @@ void HostsList::exportToXML(string filename) {
     pRootNode = xmlNewNode(NULL, BAD_CAST "devices");
     xmlDocSetRootElement(pDocument, pRootNode);
 
-    for (auto &host : macAddressMap) {
+    for (auto &host : hosts) {
         xmlNodePtr pHostNode = xmlNewChild(pRootNode, NULL, BAD_CAST "host", NULL);
         xmlNewProp(
                 pHostNode, BAD_CAST "mac",
-                BAD_CAST Utils::formatMacAddress(host.first, three_groups_of_four_hexa_digits_sep_dot).c_str()
+                BAD_CAST Utils::formatMacAddress(host.getMacAddress(),
+                                                 three_groups_of_four_hexa_digits_sep_dot).c_str()
         );
 
         /* IPv4 addresses */
-        for (auto &address : host.second.first) {
-            xmlNewChild(pHostNode, NULL, BAD_CAST "ipv4", BAD_CAST inet_ntoa(address));
+        for (auto &address : host.getIpv4addresses()) {
+            xmlNewChild(pHostNode, NULL, BAD_CAST "ipv4", BAD_CAST Utils::ipv4ToString(address).c_str());
         }
 
         /* IPv6 addresses */
-        for (auto &address : host.second.second) {
-            char addressString[INET6_ADDRSTRLEN];
-            inet_ntop(AF_INET6, &address, addressString, INET6_ADDRSTRLEN);
-            xmlNewChild(pHostNode, NULL, BAD_CAST "ipv6", BAD_CAST addressString);
+        for (auto &address : host.getIpv6addresses()) {
+            xmlNewChild(pHostNode, NULL, BAD_CAST "ipv6", BAD_CAST Utils::ipv6ToString(address).c_str());
         }
     }
 
@@ -102,5 +93,14 @@ void HostsList::exportToXML(string filename) {
 }
 
 void HostsList::remove(mac_addr address) {
-    macAddressMap.erase(address);
+    hosts.erase(Host(address));
+}
+
+set<Host>::iterator HostsList::find(mac_addr address) {
+    return hosts.find(Host(address));
+}
+
+bool operator<(const Host a, const Host b) {
+    return Utils::formatMacAddress(a.getMacAddress(), three_groups_of_four_hexa_digits_sep_dot) <
+           Utils::formatMacAddress(b.getMacAddress(), three_groups_of_four_hexa_digits_sep_dot);
 }

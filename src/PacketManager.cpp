@@ -144,3 +144,6 @@ class PacketManager<ARP_packet>;
 
 template
 class PacketManager<ICMPv6_packet>;
+
+template
+class PacketManager<Packet>;

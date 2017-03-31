@@ -6,15 +6,18 @@
 #include <set>
 #include "ARP_packet.h"
 #include "ICMPv6_packet.h"
+#include "Host.h"
 
 class HostsList {
 private:
-    map<mac_addr, pair<vector<in_addr>, set<in6_addr>>> macAddressMap;
+    set<Host> hosts;
 
 public:
     HostsList();
 
     HostsList(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *> &icmpv6Packets);
+
+    set<Host>::iterator find(mac_addr address);
 
     void insert(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *> &icmpv6Packets);
 
