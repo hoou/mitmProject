@@ -211,7 +211,7 @@ uint16_t ICMPv6_packet::icmp6_checksum(
     char buf[IP_MAXPACKET];
     char *ptr;
     int chksumlen = 0;
-    int i;
+    size_t i;
 
     ptr = &buf[0];  // ptr points to beginning of buffer buf
 
