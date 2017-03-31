@@ -18,6 +18,8 @@ public:
 
     void insert(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *> &icmpv6Packets);
 
+    void remove(mac_addr address);
+
     void exportToXML(string filename);
 };
 

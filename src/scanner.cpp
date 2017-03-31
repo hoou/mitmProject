@@ -69,6 +69,10 @@ int main(int argc, char **argv) {
                 (vector<ARP_packet *> &) arpPacketManager.getCaughtPackets(),
                 (vector<ICMPv6_packet *> &) icmpv6PacketManager.getCaughtPackets()
         );
+
+        /* Remove my mac address from hosts list */
+        hostsList.remove(networkInterface.getPhysicalAddress());
+
         hostsList.exportToXML(arguments.getFile());
 
     } catch (exception &e) {

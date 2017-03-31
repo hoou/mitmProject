@@ -100,3 +100,7 @@ void HostsList::exportToXML(string filename) {
     if (status == -1)
         throw runtime_error("Cannot create output XML file");
 }
+
+void HostsList::remove(mac_addr address) {
+    macAddressMap.erase(address);
+}
