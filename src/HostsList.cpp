@@ -64,6 +64,9 @@ void HostsList::exportToXML(string filename) {
     xmlDocPtr pDocument;
     xmlNodePtr pRootNode;
 
+    /* init libxml */
+    LIBXML_TEST_VERSION
+
     pDocument = xmlNewDoc(BAD_CAST "1.0");
     pRootNode = xmlNewNode(NULL, BAD_CAST "devices");
     xmlDocSetRootElement(pDocument, pRootNode);
@@ -104,6 +107,9 @@ void HostsList::importFromXML(string filename) {
     string nodeName;
     string lastNodeName;
     mac_addr lastMacAddress;
+
+    /* init libxml */
+    LIBXML_TEST_VERSION
 
     reader = xmlReaderForFile(filename.c_str(), NULL, 0);
     if (reader != NULL) {
