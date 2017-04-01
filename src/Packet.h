@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <netinet/if_ether.h>
+#include <ostream>
 #include "Utils.h"
 
 using namespace std;
@@ -22,8 +23,6 @@ protected:
 public:
     Packet(const uint8_t *data, size_t length);
 
-    Packet(uint16_t type, mac_addr source, mac_addr destination);
-
     virtual ~Packet();
 
     uint8_t *getRawData() const;
@@ -35,6 +34,12 @@ public:
     mac_addr getEthernetSourceAddress();
 
     mac_addr getEthernetDestinationAddress();
+
+    void setEthernetSourceAddress(mac_addr address);
+
+    void setEthernetDestinationAddress(mac_addr address);
+
+    friend ostream &operator<<(ostream &os, const Packet &packet);
 };
 
 

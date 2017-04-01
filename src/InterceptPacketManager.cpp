@@ -41,9 +41,10 @@ void InterceptPacketManager::initFilters() {
 }
 
 void InterceptPacketManager::processPacket(u_char *payload, size_t length) {
-    Packet caughtPacket(payload, length);
-    Packet modifiedPacket(caughtPacket.getType(), networkInterface.getPhysicalAddress(), to.getMacAddress());
-    send(&modifiedPacket);
+    Packet packet(payload, length);
+    packet.setEthernetSourceAddress(networkInterface.getPhysicalAddress());
+    packet.setEthernetDestinationAddress(to.getMacAddress());
+    send(&packet);
 
 //    cout << "from: " << Utils::ipv4ToString(*(from.getIpv4addresses().begin())) << endl;
 //    cout << "to: " << Utils::ipv4ToString(*(to.getIpv4addresses().begin())) << endl;
