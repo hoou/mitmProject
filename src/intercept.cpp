@@ -12,12 +12,22 @@ int main(int argc, char *argv[]) {
     try {
         ScannerArguments arguments(argc, argv);
 
-
         HostsList hostsList;
         hostsList.importFromXML(arguments.getFile());
 
-        for (auto &host : hostsList.getHosts()) {
-            cout << host << endl << endl;
+        set<Group> groupsOfVictims = hostsList.getGroups();
+        if (!HostsList::hasEveryGroupExactlyTwoHosts(groupsOfVictims)) {
+            throw runtime_error("Every group must have exactly 2 hosts!");
+        }
+
+        for (auto &group : groupsOfVictims) {
+            cout << "________________" << endl;
+            cout << "Group name: " << group.getName() << endl;
+            for (auto &host : group.getHosts()) {
+                cout << "Host:" << endl;
+                cout << host << endl;
+            }
+            cout << "________________" << endl;
         }
 
         return EXIT_SUCCESS;

@@ -42,6 +42,7 @@ set(INTERCEPT_SOURCE_FILES
         InterceptPacketManager.cpp
         Host.cpp
         HostsList.cpp
+        Group.cpp
         )
 
 add_executable(pds-scanner ${SCANNER_SOURCE_FILES})

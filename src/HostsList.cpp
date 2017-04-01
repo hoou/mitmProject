@@ -2,7 +2,6 @@
 #include <netinet/in.h>
 #include <fstream>
 #include <libxml/xmlreader.h>
-
 #include "HostsList.h"
 
 HostsList::HostsList() {}
@@ -121,7 +120,14 @@ void HostsList::importFromXML(string filename) {
                     throw runtime_error("Host node is missing mac attribute");
 
                 lastMacAddress = Utils::parseMacAddress((char *) attr);
-                hosts.insert(Host(lastMacAddress));
+                Host newHost{lastMacAddress};
+
+                attr = xmlTextReaderGetAttribute(reader, BAD_CAST "group");
+                if (attr != NULL) {
+                    newHost.setGroup((char *) attr);
+                }
+
+                hosts.insert(newHost);
             } else if (lastNodeName == "ipv4" && xmlTextReaderNodeType(reader) == 3) {
                 value = xmlTextReaderValue(reader);
                 if (value == NULL)
@@ -169,23 +175,50 @@ set<Host>::iterator HostsList::find(mac_addr address) {
     return hosts.find(Host(address));
 }
 
-void HostsList::print_element_names(xmlNode *a_node) {
-    xmlNode *cur_node = NULL;
-
-    for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
-        if (cur_node->type == XML_ELEMENT_NODE) {
-            printf("node type: Element, name: %s\n", cur_node->name);
-        }
-
-        print_element_names(cur_node->children);
-    }
-}
-
 const set<Host> &HostsList::getHosts() const {
     return hosts;
+}
+
+set<Group> HostsList::getGroups() {
+    set<Group> groups;
+
+    for (auto &host : hosts) {
+        string groupName = host.getGroupName();
+        if (!groupName.empty()) {
+            set<Group>::iterator it;
+            it = groups.find(Group(groupName, vector<Host>()));
+            if (it == groups.end()) {
+                groups.insert({groupName, {host}});
+            } else {
+                Group modifiedGroup = *it;
+                modifiedGroup.addHost(host);
+                groups.erase(it);
+                groups.insert(modifiedGroup);
+            }
+        }
+    }
+
+    return groups;
+}
+
+bool HostsList::hasEveryGroupExactlyTwoHosts(set<Group> groups) {
+    bool res = true;
+
+    for (auto &group : groups) {
+        if (group.getHosts().size() != 2) {
+            res = false;
+            break;
+        }
+    }
+
+    return res;
 }
 
 bool operator<(const Host a, const Host b) {
     return Utils::formatMacAddress(a.getMacAddress(), three_groups_of_four_hexa_digits_sep_dot) <
            Utils::formatMacAddress(b.getMacAddress(), three_groups_of_four_hexa_digits_sep_dot);
+}
+
+bool operator<(const Group a, const Group b) {
+    return a.getName() < b.getName();
 }

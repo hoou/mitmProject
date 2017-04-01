@@ -4,23 +4,16 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <unordered_map>
 #include <libxml/parser.h>
 #include "ARP_packet.h"
 #include "ICMPv6_packet.h"
 #include "Host.h"
+#include "Group.h"
 
 class HostsList {
 private:
     set<Host> hosts;
-
-    /**
-     * http://www.xmlsoft.org/examples/tree1.c
-     *
-     * Prints the names of the all the xml elements that are siblings or children of a given xml node.
-     *
-     * @param a_node the initial xml node to consider.
-     */
-    void print_element_names(xmlNode *a_node);
 
 public:
     HostsList();
@@ -30,6 +23,10 @@ public:
     HostsList(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *> &icmpv6Packets);
 
     set<Host>::iterator find(mac_addr address);
+
+    set<Group> getGroups();
+
+    static bool hasEveryGroupExactlyTwoHosts(set<Group> groups);
 
     void insert(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *> &icmpv6Packets);
 

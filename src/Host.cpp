@@ -43,6 +43,14 @@ ostream &operator<<(ostream &os, const Host &host) {
     return os;
 }
 
+const string &Host::getGroupName() const {
+    return group;
+}
+
+void Host::setGroup(const string &group) {
+    Host::group = group;
+}
+
 bool operator<(in_addr a, in_addr b) {
     return Utils::ipv4ToString(a) < Utils::ipv4ToString(b);
 }

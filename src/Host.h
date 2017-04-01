@@ -11,6 +11,7 @@ private:
     mac_addr macAddress;
     set<in_addr> ipv4addresses;
     set<in6_addr> ipv6addresses;
+    string group;
 
 public:
     Host(mac_addr macAddress);
@@ -26,6 +27,10 @@ public:
     const set<in_addr> &getIpv4addresses() const;
 
     const set<in6_addr> &getIpv6addresses() const;
+
+    const string &getGroupName() const;
+
+    void setGroup(const string &group);
 
     friend ostream &operator<<(ostream &os, const Host &host);
 };
