@@ -15,7 +15,6 @@ template<typename T>
 class PacketManager {
 private:
     static vector<PacketManager *> instances;
-    NetworkInterface &networkInterface;
     pcap_t *sendPCAP_handle;
 
     mutex mtx;
@@ -36,6 +35,8 @@ private:
     void clean();
 
 protected:
+    NetworkInterface &networkInterface;
+
     virtual void processPacket(u_char *payload, size_t length);
 
 public:

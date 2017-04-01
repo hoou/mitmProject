@@ -11,7 +11,9 @@ void InterceptPacketManager::initFilters() {
     stringstream filter;
     set<in6_addr> ipv6addresses;
 
-    filter << "(";
+    filter << "(not (ether src "
+           << Utils::formatMacAddress(networkInterface.getPhysicalAddress(), six_groups_of_two_hexa_digits_sep_colon)
+           << ")) and ((";
     filter << InterceptPacketManager::createSrcFilter(from.getIpv4addresses());
     ipv6addresses = from.getIpv6addresses();
 
@@ -31,7 +33,7 @@ void InterceptPacketManager::initFilters() {
         filter << InterceptPacketManager::createDstFilter(ipv6addresses);
     }
 
-    filter << ")";
+    filter << "))";
 
     setListenFilterExpression(filter.str());
 }
