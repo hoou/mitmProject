@@ -22,6 +22,8 @@ protected:
 public:
     Packet(const uint8_t *data, size_t length);
 
+    Packet(uint16_t type, mac_addr source, mac_addr destination);
+
     virtual ~Packet();
 
     uint8_t *getRawData() const;

@@ -10,6 +10,13 @@ Packet::Packet(const uint8_t *data, size_t length) : length(length) {
     memcpy(&ethernetHeader, rawData, ETH_HLEN);
 }
 
+Packet::Packet(uint16_t type, mac_addr source, mac_addr destination) {
+    ethernetHeader = constructEthernetHeader(type, source, destination);
+    length = sizeof(ethernetHeader);
+    rawData = (uint8_t *) malloc(sizeof(uint8_t) * length);
+    memcpy(rawData, &ethernetHeader, length);
+}
+
 Packet::~Packet() {
     free(rawData);
 }

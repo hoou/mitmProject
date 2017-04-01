@@ -1,6 +1,8 @@
 #include <sstream>
 #include <iostream>
 #include "InterceptPacketManager.h"
+#include "IPv4_packet.h"
+#include "IPv6_packet.h"
 
 InterceptPacketManager::InterceptPacketManager(NetworkInterface &networkInterface, Host from, Host to)
         : PacketManager(networkInterface), from(from), to(to) {
@@ -39,16 +41,11 @@ void InterceptPacketManager::initFilters() {
 }
 
 void InterceptPacketManager::processPacket(u_char *payload, size_t length) {
-    Packet packet(payload, length);
+    Packet caughtPacket(payload, length);
+    Packet modifiedPacket(caughtPacket.getType(), networkInterface.getPhysicalAddress(), to.getMacAddress());
+    send(&modifiedPacket);
 
-    if (packet.getType() == ETH_P_IP) {
-        /* IPv4 packet */
-
-    } else if (packet.getType() == ETH_P_IPV6) {
-        /* IPv6 packet */
-    }
-
-    cout << "from: " << Utils::ipv4ToString(*(from.getIpv4addresses().begin())) << endl;
-    cout << "to: " << Utils::ipv4ToString(*(to.getIpv4addresses().begin())) << endl;
-    cout << "size: " << length << endl << endl;
+//    cout << "from: " << Utils::ipv4ToString(*(from.getIpv4addresses().begin())) << endl;
+//    cout << "to: " << Utils::ipv4ToString(*(to.getIpv4addresses().begin())) << endl;
+//    cout << "size: " << length << endl << endl;
 }
