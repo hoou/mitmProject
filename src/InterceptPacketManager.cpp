@@ -39,5 +39,6 @@ void InterceptPacketManager::initFilters() {
 void InterceptPacketManager::processPacket(u_char *payload, size_t length) {
 //    Packet packet(payload, length);
     cout << "from: " << Utils::ipv4ToString(*(from.getIpv4addresses().begin())) << endl;
-    cout << "to: " << Utils::ipv4ToString(*(to.getIpv4addresses().begin())) << endl << endl;
+    cout << "to: " << Utils::ipv4ToString(*(to.getIpv4addresses().begin())) << endl;
+    cout << "size: " << length << endl << endl;
 }
