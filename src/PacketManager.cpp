@@ -1,4 +1,5 @@
 #include <thread>
+#include <sstream>
 #include "PacketManager.h"
 #include "ARP_packet.h"
 #include "ICMPv6_packet.h"
@@ -137,6 +138,56 @@ const vector<Packet *> &PacketManager<T>::getCaughtPackets() {
 template<typename T>
 const vector<PacketManager<T> *> &PacketManager<T>::getInstances() {
     return instances;
+}
+
+template<typename T>
+string PacketManager<T>::createHostFilter(string target, string separator, set<in_addr> addresses) {
+    stringstream res;
+
+    for (set<in_addr>::iterator it = addresses.begin(); it != addresses.end(); it++) {
+        if (it != addresses.begin()) {
+            res << " " << separator << " ";
+        }
+
+        res << target << " " << Utils::ipv4ToString((*it));
+    }
+
+    return res.str();
+}
+
+template<typename T>
+string PacketManager<T>::createHostFilter(string target, string separator, set<in6_addr> addresses) {
+    stringstream res;
+
+    for (set<in6_addr>::iterator it = addresses.begin(); it != addresses.end(); it++) {
+        if (it != addresses.begin()) {
+            res << " " << separator << " ";
+        }
+
+        res << target << " " << Utils::ipv6ToString((*it));
+    }
+
+    return res.str();
+}
+
+template<typename T>
+string PacketManager<T>::createSrcFilter(set<in_addr> addresses) {
+    return PacketManager<T>::createHostFilter("src", "or", addresses);
+}
+
+template<typename T>
+string PacketManager<T>::createSrcFilter(set<in6_addr> addresses) {
+    return PacketManager<T>::createHostFilter("src", "or", addresses);
+}
+
+template<typename T>
+string PacketManager<T>::createDstFilter(set<in_addr> addresses) {
+    return PacketManager<T>::createHostFilter("dst", "or", addresses);
+}
+
+template<typename T>
+string PacketManager<T>::createDstFilter(set<in6_addr> addresses) {
+    return PacketManager<T>::createHostFilter("dst", "or", addresses);
 }
 
 template

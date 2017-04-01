@@ -3,16 +3,20 @@
 
 
 #include "PacketManager.h"
+#include "Host.h"
 
 class InterceptPacketManager : public PacketManager<Packet> {
 private:
+    Host from;
+    Host to;
+
+    void initFilters();
+
 protected:
     void processPacket(u_char *payload, size_t length) override;
 
 public:
-    InterceptPacketManager(NetworkInterface &networkInterface);
-
-    InterceptPacketManager(NetworkInterface &networkInterface, const string &listenFilterExpression);
+    InterceptPacketManager(NetworkInterface &networkInterface, Host from, Host to);
 };
 
 

@@ -7,6 +7,7 @@
 #include "Packet.h"
 #include <thread>
 #include <vector>
+#include <set>
 
 using namespace std;
 
@@ -58,6 +59,18 @@ public:
     const vector<Packet *> &getCaughtPackets();
 
     static const vector<PacketManager *> &getInstances();
+
+    static string createHostFilter(string target, string separator, set<in_addr> addresses);
+
+    static string createHostFilter(string target, string separator, set<in6_addr> addresses);
+
+    static string createSrcFilter(set<in_addr> addresses);
+
+    static string createSrcFilter(set<in6_addr> addresses);
+
+    static string createDstFilter(set<in_addr> addresses);
+
+    static string createDstFilter(set<in6_addr> addresses);
 };
 
 

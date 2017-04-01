@@ -1,5 +1,6 @@
 #include <iostream>
 #include <csignal>
+#include <sstream>
 #include "ScannerArguments.h"
 #include "NetworkInterface.h"
 #include "Packet.h"
@@ -11,6 +12,7 @@ void interruptHandler(int sig);
 int main(int argc, char *argv[]) {
     try {
         ScannerArguments arguments(argc, argv);
+        NetworkInterface networkInterface(arguments.getInterface());
 
         HostsList hostsList;
         hostsList.importFromXML(arguments.getFile());
@@ -20,28 +22,31 @@ int main(int argc, char *argv[]) {
             throw runtime_error("Every group must have exactly 2 hosts!");
         }
 
-        for (auto &group : groupsOfVictims) {
-            cout << "________________" << endl;
-            cout << "Group name: " << group.getName() << endl;
-            for (auto &host : group.getHosts()) {
-                cout << "Host:" << endl;
-                cout << host << endl;
-            }
-            cout << "________________" << endl;
-        }
-
-        return EXIT_SUCCESS;
-
-        NetworkInterface networkInterface(arguments.getInterface());
-        InterceptPacketManager packetManager1(networkInterface, "src");
-
         signal(SIGINT, interruptHandler);
         signal(SIGTERM, interruptHandler);
 
-        packetManager1.listen();
-        packetManager1.wait();
+        set<in6_addr> ipv6addresses;
+        for (auto &group : groupsOfVictims) {
+            InterceptPacketManager *packetManager1to2 = new InterceptPacketManager(networkInterface,
+                                                                                   group.getHosts()[0],
+                                                                                   group.getHosts()[1]);
+            InterceptPacketManager *packetManager2to1 = new InterceptPacketManager(networkInterface,
+                                                                                   group.getHosts()[1],
+                                                                                   group.getHosts()[0]);
+            packetManager1to2->listen();
+            packetManager2to1->listen();
+        }
 
-        cout << "packet count:" << packetManager1.getCaughtPackets().size() << endl;
+        for (auto &instance : InterceptPacketManager::getInstances()) {
+            instance->wait();
+        }
+
+        vector<PacketManager<Packet> *> instances = PacketManager<Packet>::getInstances();
+        for (auto &instance : instances) {
+            delete instance;
+        }
+
+        return EXIT_SUCCESS;
 
     } catch (exception &e) {
         cerr << e.what() << endl;

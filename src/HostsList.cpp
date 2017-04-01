@@ -121,10 +121,12 @@ void HostsList::importFromXML(string filename) {
 
                 lastMacAddress = Utils::parseMacAddress((char *) attr);
                 Host newHost{lastMacAddress};
+                xmlFree((void *) attr);
 
                 attr = xmlTextReaderGetAttribute(reader, BAD_CAST "group");
                 if (attr != NULL) {
                     newHost.setGroup((char *) attr);
+                    xmlFree((void *) attr);
                 }
 
                 hosts.insert(newHost);
@@ -136,6 +138,7 @@ void HostsList::importFromXML(string filename) {
                 set<Host>::iterator it = hosts.find(Host(lastMacAddress));
                 Host modifiedHost = (*it);
                 modifiedHost.addIpv4Address(Utils::stringToIpv4((char *) value));
+                xmlFree((void *) value);
                 hosts.erase(it);
                 hosts.insert(modifiedHost);
             } else if (lastNodeName == "ipv6" && xmlTextReaderNodeType(reader) == 3) {
@@ -146,6 +149,7 @@ void HostsList::importFromXML(string filename) {
                 set<Host>::iterator it = hosts.find(Host(lastMacAddress));
                 Host modifiedHost = (*it);
                 modifiedHost.addIpv6Address(Utils::stringToIpv6((char *) value));
+                xmlFree((void *) value);
                 hosts.erase(it);
                 hosts.insert(modifiedHost);
             }
@@ -153,9 +157,8 @@ void HostsList::importFromXML(string filename) {
             lastNodeName = nodeName;
             ret = xmlTextReaderRead(reader);
         }
-        xmlFreeTextReader(reader);
-
     }
+    xmlFreeTextReader(reader);
     xmlCleanupParser();
 
     if (reader == NULL) {
