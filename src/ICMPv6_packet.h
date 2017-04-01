@@ -3,7 +3,7 @@
 
 
 #include "Packet.h"
-#include "IIPv6_packet.h"
+#include "IPv6_packet.h"
 #include <netinet/icmp6.h>
 
 /*
@@ -14,9 +14,8 @@
  */
 #define ICMP_ECHO_REQUEST_HDRLEN 8  // ICMP header length for echo request, excludes data
 #define ICMP_NEIGH_ADV_HDRLEN 32 // ICMP header length for neighbor advertisement
-#define IP6_HDRLEN 40  // IPv6 header length
 
-class ICMPv6_packet : public Packet, public IIPv6_packet {
+class ICMPv6_packet : public IPv6_packet {
 private:
     struct icmp6_hdr icmp6Header;
 
@@ -55,9 +54,7 @@ private:
      */
     static uint16_t checksum(uint16_t *addr, int len);
 
-protected:
-
-    void setupHeaders();
+    void setupHeader();
 
 public:
 

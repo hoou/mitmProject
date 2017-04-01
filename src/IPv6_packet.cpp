@@ -1,7 +1,16 @@
 #include <iostream>
-#include "IIPv6_packet.h"
+#include <cstring>
+#include "IPv6_packet.h"
 
-struct ip6_hdr IIPv6_packet::constructIPv6Header(
+IPv6_packet::IPv6_packet(const uint8_t *data, size_t length) : Packet(data, length) {
+    setupHeader();
+}
+
+void IPv6_packet::setupHeader() {
+    memcpy(&ipv6Header, rawData + ETH_HLEN, sizeof(uint8_t) * IP6_HDRLEN);
+}
+
+struct ip6_hdr IPv6_packet::constructIPv6Header(
         uint16_t payloadLength,
         uint8_t nextHeader,
         in6_addr srcAddr,
@@ -37,7 +46,8 @@ struct ip6_hdr IIPv6_packet::constructIPv6Header(
     return header;
 }
 
-vector<uint8_t> IIPv6_packet::constructDestinationOptionsHeader(uint8_t nextHeader, uint8_t length, vector<uint8_t> options) {
+vector<uint8_t>
+IPv6_packet::constructDestinationOptionsHeader(uint8_t nextHeader, uint8_t length, vector<uint8_t> options) {
     struct ip6_dest optionsHeader;
 
     optionsHeader.ip6d_nxt = nextHeader;
@@ -52,10 +62,10 @@ vector<uint8_t> IIPv6_packet::constructDestinationOptionsHeader(uint8_t nextHead
     return result;
 }
 
-in6_addr IIPv6_packet::getSourceAddress() {
+in6_addr IPv6_packet::getSourceAddress() {
     return ipv6Header.ip6_src;
 }
 
-in6_addr IIPv6_packet::getDestinationAddress() {
+in6_addr IPv6_packet::getDestinationAddress() {
     return ipv6Header.ip6_dst;
 }

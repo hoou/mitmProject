@@ -18,6 +18,8 @@ class ARP_packet : public Packet {
 private:
     struct ether_arp ARP_struct;
 
+    void setupHeader();
+
     static ether_arp constructArpHeader(
             uint16_t type,
             mac_addr senderHardwareAddress,
@@ -25,9 +27,6 @@ private:
             mac_addr targetHardwareAddress,
             in_addr targetProtocolAddress
     );
-
-protected:
-    void setupHeaders();
 
 public:
     ARP_packet(const uint8_t *data, size_t length);

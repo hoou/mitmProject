@@ -2,10 +2,10 @@
 #include <cstring>
 
 ARP_packet::ARP_packet(const uint8_t *data, size_t length) : Packet(data, length) {
-    setupHeaders();
+    setupHeader();
 }
 
-void ARP_packet::setupHeaders() {
+void ARP_packet::setupHeader() {
     memcpy(&ARP_struct, rawData + ETH_HLEN, sizeof(struct ether_arp));
 }
 

@@ -1,9 +1,8 @@
 #include "ICMPv6_packet.h"
 #include <netinet/ip.h>
-#include <iostream>
 
-ICMPv6_packet::ICMPv6_packet(const uint8_t *data, size_t length) : Packet(data, length) {
-    setupHeaders();
+ICMPv6_packet::ICMPv6_packet(const uint8_t *data, size_t length) : IPv6_packet(data, length) {
+    setupHeader();
 }
 
 struct nd_neighbor_advert ICMPv6_packet::constructNeighborAdvertisementHeader(const in6_addr &targetAddress) {
@@ -14,13 +13,7 @@ struct nd_neighbor_advert ICMPv6_packet::constructNeighborAdvertisementHeader(co
     return neighborAdvertisementHeader;
 }
 
-void ICMPv6_packet::setupHeaders() {
-    memcpy(&ipv6Header, rawData + ETH_HLEN, sizeof(uint8_t) * IP6_HDRLEN);
-
-    uint16_t ipv6PayloadLength;
-    memcpy(&ipv6PayloadLength, rawData + ETH_HLEN + 4, sizeof(uint16_t));
-    ipv6PayloadLength = htons(ipv6PayloadLength);
-
+void ICMPv6_packet::setupHeader() {
     memcpy(&icmp6Header, rawData + ETH_HLEN + IP6_HDRLEN, sizeof(icmp6Header) * sizeof(uint8_t));
 }
 

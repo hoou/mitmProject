@@ -11,7 +11,7 @@ set(SCANNER_SOURCE_FILES
         PacketManager.cpp
         Packet.cpp
         ICMPv6_packet.cpp
-        IIPv6_packet.cpp
+        IPv6_packet.cpp
         Host.cpp
         Group.cpp
         )
@@ -26,7 +26,7 @@ set(SPOOF_SOURCE_FILES
         Packet.cpp
         Subnet.cpp
         ICMPv6_packet.cpp
-        IIPv6_packet.cpp
+        IPv6_packet.cpp
         )
 
 set(INTERCEPT_SOURCE_FILES
@@ -39,7 +39,7 @@ set(INTERCEPT_SOURCE_FILES
         Subnet.cpp
         ARP_packet.cpp
         ICMPv6_packet.cpp
-        IIPv6_packet.cpp
+        IPv6_packet.cpp
         InterceptPacketManager.cpp
         Host.cpp
         HostsList.cpp
