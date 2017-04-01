@@ -27,7 +27,7 @@ private:
     );
 
 protected:
-    void setupHeaders() override;
+    void setupHeaders();
 
 public:
     ARP_packet(const uint8_t *data, size_t length);

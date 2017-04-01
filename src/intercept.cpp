@@ -1,6 +1,5 @@
 #include <iostream>
 #include <csignal>
-#include <sstream>
 #include "ScannerArguments.h"
 #include "NetworkInterface.h"
 #include "Packet.h"

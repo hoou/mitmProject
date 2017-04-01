@@ -15,8 +15,6 @@ struct nd_neighbor_advert ICMPv6_packet::constructNeighborAdvertisementHeader(co
 }
 
 void ICMPv6_packet::setupHeaders() {
-    Packet::setupHeaders();
-
     memcpy(&ipv6Header, rawData + ETH_HLEN, sizeof(uint8_t) * IP6_HDRLEN);
 
     uint16_t ipv6PayloadLength;

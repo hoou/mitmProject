@@ -57,7 +57,7 @@ private:
 
 protected:
 
-    void setupHeaders() override;
+    void setupHeaders();
 
 public:
 

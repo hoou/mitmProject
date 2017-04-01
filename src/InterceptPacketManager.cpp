@@ -39,7 +39,15 @@ void InterceptPacketManager::initFilters() {
 }
 
 void InterceptPacketManager::processPacket(u_char *payload, size_t length) {
-//    Packet packet(payload, length);
+    Packet packet(payload, length);
+
+    if (packet.getType() == ETH_P_IP) {
+        /* IPv4 packet */
+
+    } else if (packet.getType() == ETH_P_IPV6) {
+        /* IPv6 packet */
+    }
+
     cout << "from: " << Utils::ipv4ToString(*(from.getIpv4addresses().begin())) << endl;
     cout << "to: " << Utils::ipv4ToString(*(to.getIpv4addresses().begin())) << endl;
     cout << "size: " << length << endl << endl;

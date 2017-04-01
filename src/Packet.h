@@ -13,8 +13,6 @@ protected:
     size_t length;
     struct ether_header ethernetHeader;
 
-    virtual void setupHeaders();
-
     static struct ether_header constructEthernetHeader(
             uint16_t type,
             mac_addr source,
@@ -29,6 +27,8 @@ public:
     uint8_t *getRawData() const;
 
     size_t getLength() const;
+
+    uint16_t getType() const;
 
     mac_addr getEthernetSourceAddress();
 

@@ -5,6 +5,9 @@
 Packet::Packet(const uint8_t *data, size_t length) : length(length) {
     rawData = (uint8_t *) malloc(sizeof(uint8_t) * length);
     memcpy(rawData, data, length);
+
+    /* Setup ethernet header */
+    memcpy(&ethernetHeader, rawData, ETH_HLEN);
 }
 
 Packet::~Packet() {
@@ -30,14 +33,14 @@ size_t Packet::getLength() const {
     return length;
 }
 
+uint16_t Packet::getType() const {
+    return (uint16_t) ethernetHeader.ether_type;
+}
+
 mac_addr Packet::getEthernetSourceAddress() {
     return Utils::constructMacAddressFromRawData((const uint8_t *) ethernetHeader.ether_shost);
 }
 
 mac_addr Packet::getEthernetDestinationAddress() {
     return Utils::constructMacAddressFromRawData((const uint8_t *) ethernetHeader.ether_dhost);
-}
-
-void Packet::setupHeaders() {
-    memcpy(&ethernetHeader, rawData, ETH_HLEN);
 }

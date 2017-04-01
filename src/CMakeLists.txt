@@ -13,6 +13,7 @@ set(SCANNER_SOURCE_FILES
         ICMPv6_packet.cpp
         IIPv6_packet.cpp
         Host.cpp
+        Group.cpp
         )
 
 set(SPOOF_SOURCE_FILES
