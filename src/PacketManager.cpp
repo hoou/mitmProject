@@ -13,7 +13,7 @@ PacketManager<T>::PacketManager(NetworkInterface &networkInterface) : networkInt
 
     /* Initialize pcap handle for sending packets */
     char errorBuffer[PCAP_ERRBUF_SIZE];
-    sendPCAP_handle = pcap_open_live(networkInterface.getName().c_str(), 96, 1, 0, errorBuffer);
+    sendPCAP_handle = pcap_open_live(networkInterface.getName().c_str(), BUFSIZ, 1, 0, errorBuffer);
     if (sendPCAP_handle == NULL)
         throw runtime_error(errorBuffer);
 }
@@ -52,7 +52,7 @@ template<typename T>
 void PacketManager<T>::listenTask() {
     char errorBuffer[PCAP_ERRBUF_SIZE];
 
-    listenPCAP_handle = pcap_open_live(networkInterface.getName().c_str(), 1024, 0, 1000, errorBuffer);
+    listenPCAP_handle = pcap_open_live(networkInterface.getName().c_str(), BUFSIZ, 1, 0, errorBuffer);
     if (listenPCAP_handle == NULL) {
         throw runtime_error(errorBuffer);
     }
