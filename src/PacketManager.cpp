@@ -1,5 +1,6 @@
 #include <thread>
 #include <sstream>
+#include <iostream>
 #include "PacketManager.h"
 #include "ARP_packet.h"
 #include "ICMPv6_packet.h"
@@ -141,10 +142,10 @@ const vector<PacketManager<T> *> &PacketManager<T>::getInstances() {
 }
 
 template<typename T>
-string PacketManager<T>::createHostFilter(string target, string separator, set<in_addr> addresses) {
+string PacketManager<T>::createHostFilter(string target, string separator, vector<in_addr> addresses) {
     stringstream res;
 
-    for (set<in_addr>::iterator it = addresses.begin(); it != addresses.end(); it++) {
+    for (vector<in_addr>::iterator it = addresses.begin(); it != addresses.end(); it++) {
         if (it != addresses.begin()) {
             res << " " << separator << " ";
         }
@@ -156,10 +157,10 @@ string PacketManager<T>::createHostFilter(string target, string separator, set<i
 }
 
 template<typename T>
-string PacketManager<T>::createHostFilter(string target, string separator, set<in6_addr> addresses) {
+string PacketManager<T>::createHostFilter(string target, string separator, vector<in6_addr> addresses) {
     stringstream res;
 
-    for (set<in6_addr>::iterator it = addresses.begin(); it != addresses.end(); it++) {
+    for (vector<in6_addr>::iterator it = addresses.begin(); it != addresses.end(); it++) {
         if (it != addresses.begin()) {
             res << " " << separator << " ";
         }
@@ -171,22 +172,22 @@ string PacketManager<T>::createHostFilter(string target, string separator, set<i
 }
 
 template<typename T>
-string PacketManager<T>::createSrcFilter(set<in_addr> addresses) {
+string PacketManager<T>::createSrcFilter(vector<in_addr> addresses) {
     return PacketManager<T>::createHostFilter("src", "or", addresses);
 }
 
 template<typename T>
-string PacketManager<T>::createSrcFilter(set<in6_addr> addresses) {
+string PacketManager<T>::createSrcFilter(vector<in6_addr> addresses) {
     return PacketManager<T>::createHostFilter("src", "or", addresses);
 }
 
 template<typename T>
-string PacketManager<T>::createDstFilter(set<in_addr> addresses) {
+string PacketManager<T>::createDstFilter(vector<in_addr> addresses) {
     return PacketManager<T>::createHostFilter("dst", "or", addresses);
 }
 
 template<typename T>
-string PacketManager<T>::createDstFilter(set<in6_addr> addresses) {
+string PacketManager<T>::createDstFilter(vector<in6_addr> addresses) {
     return PacketManager<T>::createHostFilter("dst", "or", addresses);
 }
 
