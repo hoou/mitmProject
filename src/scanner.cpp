@@ -6,10 +6,13 @@
 #include "HostsList.h"
 #include "PacketManager.h"
 
-void alarmHandler(int sig);
+void signalHandler(int sig);
 
 int main(int argc, char **argv) {
     try {
+        signal(SIGINT, signalHandler);
+        signal(SIGTERM, signalHandler);
+
         ScannerArguments arguments(argc, argv);
         NetworkInterface networkInterface(arguments.getInterface());
         PacketManager<ARP_packet> arpPacketManager(networkInterface, "arp");
@@ -62,7 +65,7 @@ int main(int argc, char **argv) {
         }
 
         alarm(20);
-        signal(SIGALRM, alarmHandler);
+        signal(SIGALRM, signalHandler);
 
         arpPacketManager.wait();
         icmpv6PacketManager.wait();
@@ -85,7 +88,7 @@ int main(int argc, char **argv) {
     return EXIT_SUCCESS;
 }
 
-void alarmHandler(int sig) {
+void signalHandler(int sig) {
     vector<PacketManager<ARP_packet> *> arpInstances = PacketManager<ARP_packet>::getInstances();
     for (auto &instance : arpInstances) {
         instance->stopListen();
