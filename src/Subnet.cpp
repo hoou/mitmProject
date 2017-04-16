@@ -11,7 +11,7 @@ Subnet::Subnet(const in_addr &address, const in_addr &mask) : address(address), 
     lastAvailableHostAddress.s_addr = ntohl(htonl(broadcastAddress.s_addr) - 1);
 }
 
-vector<in_addr> Subnet::getAllPossibleHostAddresses() {
+vector<in_addr> Subnet::getAllPossibleHostAddresses() const {
     vector<in_addr> addresses;
     for (unsigned int i = 0; i < getNumberOfAvailableHosts(); i++) {
         in_addr address;

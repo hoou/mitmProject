@@ -8,37 +8,27 @@
 #include <array>
 #include "Utils.h"
 #include "Subnet.h"
+#include "Host.h"
 
 using namespace std;
 
 class NetworkInterface {
 private:
     string name;
-    in_addr ipv4address;
-    vector<in6_addr> ipv6addresses;
-    mac_addr physicalAddress;
-    Subnet *subnet = nullptr;
+    Host *host = nullptr;
 
-    void getAddressesAndMask(in_addr &ipv4address, vector<in6_addr> &ipv6addresses, in_addr &mask);
+    static void retrieveAddressesByName(string name, Host *host);
 
-    void setPhysicalAddress();
+    static mac_addr retrievePhysicalAddress(string name);
 
 public:
     NetworkInterface(const string &name);
 
     virtual ~NetworkInterface();
 
-    void print();
-
-    const in_addr &getIpv4address() const;
-
-    const vector<in6_addr> &getIpv6addresses() const;
-
-    const mac_addr &getPhysicalAddress() const;
-
     const string &getName() const;
 
-    Subnet *getSubnet() const;
+    Host *getHost() const;
 };
 
 

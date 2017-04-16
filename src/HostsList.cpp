@@ -23,7 +23,7 @@ void HostsList::insert(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *>
 
             if (it == hosts.end()) {
                 Host newHost(arpPacket->getSenderHardwareAddr());
-                newHost.addIpv4Address(arpPacket->getSenderProtocolAddr());
+                newHost.addIpv4Address(arpPacket->getSenderProtocolAddr(), in_addr());
                 hosts.insert(newHost);
             }
         }
@@ -33,7 +33,7 @@ void HostsList::insert(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *>
 
             if (it == hosts.end()) {
                 Host newHost(arpPacket->getTargetHardwareAddr());
-                newHost.addIpv4Address(arpPacket->getTargetProtocolAddr());
+                newHost.addIpv4Address(arpPacket->getTargetProtocolAddr(), in_addr());
                 hosts.insert(newHost);
             }
         }
@@ -81,7 +81,7 @@ void HostsList::exportToXML(string filename) {
 
         /* IPv4 addresses */
         for (auto &address : host.getIpv4addresses()) {
-            xmlNewChild(pHostNode, NULL, BAD_CAST "ipv4", BAD_CAST Utils::ipv4ToString(address).c_str());
+            xmlNewChild(pHostNode, NULL, BAD_CAST "ipv4", BAD_CAST Utils::ipv4ToString(address.first).c_str());
         }
 
         /* IPv6 addresses */
@@ -143,7 +143,7 @@ void HostsList::importFromXML(string filename) {
 
                 set<Host>::iterator it = hosts.find(Host(lastMacAddress));
                 Host modifiedHost = (*it);
-                modifiedHost.addIpv4Address(Utils::stringToIpv4((char *) value));
+                modifiedHost.addIpv4Address(Utils::stringToIpv4((char *) value), in_addr());
                 xmlFree((void *) value);
                 hosts.erase(it);
                 hosts.insert(modifiedHost);

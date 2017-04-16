@@ -2,11 +2,11 @@
 
 Host::Host(mac_addr macAddress) : macAddress(macAddress) {}
 
-Host::Host(mac_addr macAddress, set<in_addr> &ipv4addresses, set<in6_addr> &ipv6addresses)
+Host::Host(mac_addr macAddress, set<pair<in_addr, Subnet>> &ipv4addresses, set<in6_addr> &ipv6addresses)
         : macAddress(macAddress), ipv4addresses(ipv4addresses), ipv6addresses(ipv6addresses) {}
 
-void Host::addIpv4Address(in_addr address) {
-    ipv4addresses.insert(address);
+void Host::addIpv4Address(in_addr address, in_addr mask) {
+    ipv4addresses.insert({address, Subnet(Utils::getSubnetAddress(address, mask), mask)});
 }
 
 void Host::addIpv6Address(in6_addr address) {
@@ -15,10 +15,6 @@ void Host::addIpv6Address(in6_addr address) {
 
 const mac_addr &Host::getMacAddress() const {
     return macAddress;
-}
-
-const set<in_addr> &Host::getIpv4addresses() const {
-    return ipv4addresses;
 }
 
 const set<in6_addr> &Host::getIpv6addresses() const {
@@ -30,7 +26,7 @@ ostream &operator<<(ostream &os, const Host &host) {
 
     if (host.ipv4addresses.size() > 0) {
         for (auto &address : host.ipv4addresses) {
-            os << endl << Utils::ipv4ToString(address);
+            os << endl << Utils::ipv4ToString(address.first);
         }
     }
 
@@ -49,6 +45,15 @@ const string &Host::getGroupName() const {
 
 void Host::setGroup(const string &group) {
     Host::group = group;
+}
+
+const set<pair<in_addr, Subnet>> &Host::getIpv4addresses() const {
+    return ipv4addresses;
+}
+
+bool operator<(Subnet a, Subnet b) {
+    return Utils::ipv4ToString(a.getAddress()) + " " + Utils::ipv4ToString(a.getMask()) <
+           Utils::ipv4ToString(b.getAddress()) + " " + Utils::ipv4ToString(b.getMask());
 }
 
 bool operator<(in_addr a, in_addr b) {

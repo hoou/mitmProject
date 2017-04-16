@@ -20,36 +20,38 @@ int main(int argc, char **argv) {
 
         arpPacketManager.listen();
 
-        vector<in_addr> allPossibleHostAddresses = networkInterface.getSubnet()->getAllPossibleHostAddresses();
-        for (
-                vector<in_addr>::iterator possibleHostAddressIt = allPossibleHostAddresses.begin();
-                possibleHostAddressIt < allPossibleHostAddresses.end();
-                possibleHostAddressIt++
-                ) {
-            ARP_packet *arpPacket = ARP_packet::createRequest(
-                    networkInterface.getPhysicalAddress(),
-                    networkInterface.getIpv4address(),
-                    *possibleHostAddressIt
-            );
+        for (auto &ipv4address : networkInterface.getHost()->getIpv4addresses()) {
+            vector<in_addr> allPossibleHostAddresses = ipv4address.second.getAllPossibleHostAddresses();
+            for (
+                    vector<in_addr>::iterator possibleHostAddressIt = allPossibleHostAddresses.begin();
+                    possibleHostAddressIt < allPossibleHostAddresses.end();
+                    possibleHostAddressIt++
+                    ) {
+                ARP_packet *arpPacket = ARP_packet::createRequest(
+                        networkInterface.getHost()->getMacAddress(),
+                        ipv4address.first,
+                        *possibleHostAddressIt
+                );
 
-            arpPacketManager.send(arpPacket);
+                arpPacketManager.send(arpPacket);
 
-            delete (arpPacket);
+                delete (arpPacket);
 
-            usleep(1);
+                usleep(1);
+            }
         }
 
         icmpv6PacketManager.listen();
 
-        for (auto &myIPv6address : networkInterface.getIpv6addresses()) {
+        for (auto &myIPv6address : networkInterface.getHost()->getIpv6addresses()) {
             ICMPv6_packet *icmpv6Packet = ICMPv6_packet::createEchoRequest(
-                    networkInterface.getPhysicalAddress(),
+                    networkInterface.getHost()->getMacAddress(),
                     Utils::constructEthernetAllNodesMulticastAddress(),
                     myIPv6address,
                     Utils::constructIpv6AllNodesMulticastAddress()
             );
             ICMPv6_packet *malformedIcmpv6Packet = ICMPv6_packet::createMalformedEchoRequest(
-                    networkInterface.getPhysicalAddress(),
+                    networkInterface.getHost()->getMacAddress(),
                     Utils::constructEthernetAllNodesMulticastAddress(),
                     myIPv6address,
                     Utils::constructIpv6AllNodesMulticastAddress()
@@ -76,7 +78,7 @@ int main(int argc, char **argv) {
         );
 
         /* Remove my mac address from hosts list */
-        hostsList.remove(networkInterface.getPhysicalAddress());
+        hostsList.remove(networkInterface.getHost()->getMacAddress());
 
         hostsList.exportToXML(arguments.getFile());
 
