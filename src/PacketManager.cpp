@@ -127,7 +127,7 @@ void PacketManager<T>::setListenFilterExpression(const string &listenFilterExpre
 
 template<typename T>
 void PacketManager<T>::processPacket(u_char *payload, size_t length) {
-    lastCaughtPacket = new T(payload, length);
+    T *lastCaughtPacket = new T(payload, length);
     caughtPackets.push_back(lastCaughtPacket);
 }
 

@@ -21,7 +21,6 @@ private:
     thread listenThread;
     string listenFilterExpression;
 
-    T *lastCaughtPacket;
     vector<Packet *> caughtPackets;
 
     void listenTask();
