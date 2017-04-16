@@ -125,6 +125,15 @@ void PacketManager<T>::setListenFilterExpression(const string &listenFilterExpre
     PacketManager::listenFilterExpression = listenFilterExpression;
 }
 
+template<>
+void PacketManager<ARP_packet>::processPacket(u_char *payload, size_t length) {
+    ARP_packet *lastCaughtArpPacket = new ARP_packet(payload, length);
+    if (lastCaughtArpPacket->getArpType() == ARPOP_REPLY) {
+        // Catch only ARP replies
+        caughtPackets.push_back(lastCaughtArpPacket);
+    }
+}
+
 template<typename T>
 void PacketManager<T>::processPacket(u_char *payload, size_t length) {
     T *lastCaughtPacket = new T(payload, length);
