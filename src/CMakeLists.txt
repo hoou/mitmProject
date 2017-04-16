@@ -25,6 +25,7 @@ set(SPOOF_SOURCE_FILES
         PacketManager.cpp
         Packet.cpp
         Subnet.cpp
+        Host.cpp
         ICMPv6_packet.cpp
         IPv6_packet.cpp
         )

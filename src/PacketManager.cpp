@@ -153,25 +153,25 @@ const vector<PacketManager<T> *> &PacketManager<T>::getInstances() {
 }
 
 template<typename T>
-string PacketManager<T>::createHostFilter(string target, string separator, vector<in_addr> addresses) {
+string PacketManager<T>::createHostFilter(string target, string separator, set<pair<in_addr, Subnet>> addresses) {
     stringstream res;
 
-    for (vector<in_addr>::iterator it = addresses.begin(); it != addresses.end(); it++) {
+    for (set<pair<in_addr, Subnet>>::iterator it = addresses.begin(); it != addresses.end(); it++) {
         if (it != addresses.begin()) {
             res << " " << separator << " ";
         }
 
-        res << target << " " << Utils::ipv4ToString((*it));
+        res << target << " " << Utils::ipv4ToString((*it).first);
     }
 
     return res.str();
 }
 
 template<typename T>
-string PacketManager<T>::createHostFilter(string target, string separator, vector<in6_addr> addresses) {
+string PacketManager<T>::createHostFilter(string target, string separator, set<in6_addr> addresses) {
     stringstream res;
 
-    for (vector<in6_addr>::iterator it = addresses.begin(); it != addresses.end(); it++) {
+    for (set<in6_addr>::iterator it = addresses.begin(); it != addresses.end(); it++) {
         if (it != addresses.begin()) {
             res << " " << separator << " ";
         }
@@ -183,22 +183,22 @@ string PacketManager<T>::createHostFilter(string target, string separator, vecto
 }
 
 template<typename T>
-string PacketManager<T>::createSrcFilter(vector<in_addr> addresses) {
+string PacketManager<T>::createSrcFilter(set<pair<in_addr, Subnet>> addresses) {
     return PacketManager<T>::createHostFilter("src", "or", addresses);
 }
 
 template<typename T>
-string PacketManager<T>::createSrcFilter(vector<in6_addr> addresses) {
+string PacketManager<T>::createSrcFilter(set<in6_addr> addresses) {
     return PacketManager<T>::createHostFilter("src", "or", addresses);
 }
 
 template<typename T>
-string PacketManager<T>::createDstFilter(vector<in_addr> addresses) {
+string PacketManager<T>::createDstFilter(set<pair<in_addr, Subnet>> addresses) {
     return PacketManager<T>::createHostFilter("dst", "or", addresses);
 }
 
 template<typename T>
-string PacketManager<T>::createDstFilter(vector<in6_addr> addresses) {
+string PacketManager<T>::createDstFilter(set<in6_addr> addresses) {
     return PacketManager<T>::createHostFilter("dst", "or", addresses);
 }
 

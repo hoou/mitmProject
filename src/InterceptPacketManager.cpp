@@ -17,23 +17,28 @@ void InterceptPacketManager::initFilters() {
            << ")";
 
     filter << " and ";
-    filter << "(ether dst " << Utils::formatMacAddress(networkInterface.getPhysicalAddress(),
+    filter << "(ether dst " << Utils::formatMacAddress(networkInterface.getHost()->getMacAddress(),
                                                        six_groups_of_two_hexa_digits_sep_colon) << ")";
 
     filter << " and ";
-    filter << "( not (dst " << Utils::ipv4ToString(networkInterface.getIpv4address());
-    if (networkInterface.getIpv6addresses().size() > 0) {
+    filter << "( not (";
+
+    filter << InterceptPacketManager::createDstFilter(networkInterface.getHost()->getIpv4addresses());
+
+    if (networkInterface.getHost()->getIpv6addresses().size() > 0) {
         filter << " or ";
-        filter << InterceptPacketManager::createDstFilter(networkInterface.getIpv6addresses());
+        filter << InterceptPacketManager::createDstFilter(networkInterface.getHost()->getIpv6addresses());
     }
     filter << "))";
+
+    cout << filter.str() << endl;
 
     setListenFilterExpression(filter.str());
 }
 
 void InterceptPacketManager::processPacket(u_char *payload, size_t length) {
     Packet packet(payload, length);
-    packet.setEthernetSourceAddress(networkInterface.getPhysicalAddress());
+    packet.setEthernetSourceAddress(networkInterface.getHost()->getMacAddress());
     packet.setEthernetDestinationAddress(to.getMacAddress());
     send(&packet);
 

