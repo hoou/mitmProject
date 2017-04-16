@@ -131,6 +131,8 @@ void PacketManager<ARP_packet>::processPacket(u_char *payload, size_t length) {
     if (lastCaughtArpPacket->getArpType() == ARPOP_REPLY) {
         // Catch only ARP replies
         caughtPackets.push_back(lastCaughtArpPacket);
+    } else {
+        delete lastCaughtArpPacket;
     }
 }
 
