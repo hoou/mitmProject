@@ -82,7 +82,7 @@ mac_addr NetworkInterface::retrievePhysicalAddress(string name) {
     close(socketDescriptor);
 
     if (status != 0)
-        throw runtime_error("Cannot retrieve physical address of interface");
+        throw runtime_error("Cannot retrieve physical address of interface: " + string(strerror(errno)));
 
     return physicalAddress;
 }
