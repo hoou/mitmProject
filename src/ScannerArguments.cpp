@@ -1,13 +1,11 @@
 #include <getopt.h>
 #include <stdexcept>
+#include <iostream>
 #include "ScannerArguments.h"
 
 ScannerArguments::ScannerArguments(int argc, char **argv) {
-    this->parse(argc, argv);
-    if (interface == "" || file == "") {
-        //TODO print usage
-        throw runtime_error("Usage:");
-    }
+    parse(argc, argv);
+    validate();
 }
 
 void ScannerArguments::parse(int argc, char **argv) {
@@ -27,9 +25,14 @@ void ScannerArguments::parse(int argc, char **argv) {
                 file = optarg;
                 break;
             default:
-                //TODO print usage
-                throw runtime_error("Usage:");
+                throw InvalidArgumentsException();
         }
+    }
+}
+
+void ScannerArguments::validate() {
+    if (interface == "" || file == "") {
+        throw InvalidArgumentsException("missing required arguments");
     }
 }
 
@@ -39,4 +42,9 @@ const string &ScannerArguments::getInterface() const {
 
 const string &ScannerArguments::getFile() const {
     return file;
+}
+
+void ScannerArguments::printUsage() {
+    //TODO finish
+    cout << "Usage:" << endl;
 }

@@ -1,20 +1,11 @@
 #include <getopt.h>
-#include <stdexcept>
 #include <iostream>
 #include <sstream>
 #include "SpoofArguments.h"
 
 SpoofArguments::SpoofArguments(int argc, char **argv) {
-    this->parse(argc, argv);
-    if (!iFlag || !tFlag || !pFlag || !v1ipFlag || !v1macFlag || !v2ipFlag || !v2macFlag) {
-        throw InvalidArgumentsException("missing required arguments");
-    }
-    if (protocol == "arp" && (!victim1Ipv4AddressFlag || !victim2Ipv4AddressFlag)) {
-        throw InvalidArgumentsException("ARP protocol chosen, expect IPv4 addresses");
-    } else if (protocol == "ndp" && (victim1Ipv4AddressFlag || victim2Ipv4AddressFlag)) {
-        throw InvalidArgumentsException("NDP protocol chosen, expect IPv6 addresses");
-    }
-
+    parse(argc, argv);
+    validate();
 }
 
 void SpoofArguments::parse(int argc, char **argv) {
@@ -101,6 +92,17 @@ void SpoofArguments::parse(int argc, char **argv) {
     }
 }
 
+void SpoofArguments::validate() {
+    if (!iFlag || !tFlag || !pFlag || !v1ipFlag || !v1macFlag || !v2ipFlag || !v2macFlag) {
+        throw InvalidArgumentsException("missing required arguments");
+    }
+    if (protocol == "arp" && (!victim1Ipv4AddressFlag || !victim2Ipv4AddressFlag)) {
+        throw InvalidArgumentsException("ARP protocol chosen, expect IPv4 addresses");
+    } else if (protocol == "ndp" && (victim1Ipv4AddressFlag || victim2Ipv4AddressFlag)) {
+        throw InvalidArgumentsException("NDP protocol chosen, expect IPv6 addresses");
+    }
+}
+
 const string &SpoofArguments::getInterface() const {
     return interface;
 }
@@ -111,11 +113,6 @@ unsigned long long int SpoofArguments::getTime() const {
 
 const string &SpoofArguments::getProtocol() const {
     return protocol;
-}
-
-void SpoofArguments::printUsage() {
-    //TODO finish
-    cout << "Usage:" << endl;
 }
 
 const in_addr &SpoofArguments::getVictim1Ipv4Address() const {
@@ -150,7 +147,7 @@ const mac_addr &SpoofArguments::getVictim2MacAddress() const {
     return victim2MacAddress;
 }
 
-InvalidArgumentsException::InvalidArgumentsException() : runtime_error("Invalid arguments") {}
-
-InvalidArgumentsException::InvalidArgumentsException(const string &__arg) : runtime_error(
-        "Invalid arguments: " + __arg) {}
+void SpoofArguments::printUsage() {
+    //TODO finish
+    cout << "Usage:" << endl;
+}

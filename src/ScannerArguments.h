@@ -2,23 +2,28 @@
 #define PDS_MITM_SCANNERARGUMENTS_H
 
 #include <string>
+#include "Arguments.h"
 
 using namespace std;
 
-class ScannerArguments {
+class ScannerArguments : public Arguments {
 private:
     string interface = "";
     string file = "";
 
-    void parse(int argc, char **argv);
+    void parse(int argc, char **argv) override;
+
+    void validate() override;
 
 public:
+
+    ScannerArguments(int argc, char **argv);
 
     const string &getInterface() const;
 
     const string &getFile() const;
 
-    ScannerArguments(int argc, char **argv);
+    static void printUsage();
 };
 
 

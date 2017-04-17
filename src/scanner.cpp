@@ -82,7 +82,13 @@ int main(int argc, char **argv) {
 
         hostsList.exportToXML(arguments.getFile());
 
-    } catch (exception &e) {
+    }
+    catch (InvalidArgumentsException &e) {
+        cerr << e.what() << endl;
+        ScannerArguments::printUsage();
+        return EXIT_FAILURE;
+    }
+    catch (exception &e) {
         cerr << e.what() << endl;
         return EXIT_FAILURE;
     }

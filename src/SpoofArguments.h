@@ -7,18 +7,12 @@
 #define VICTIM2_MAC_OPT 1003
 
 #include "Utils.h"
+#include "Arguments.h"
 #include <netinet/ip.h>
 
 using namespace std;
 
-class InvalidArgumentsException : public runtime_error {
-public:
-    InvalidArgumentsException();
-
-    InvalidArgumentsException(const string &__arg);
-};
-
-class SpoofArguments {
+class SpoofArguments : public Arguments {
 private:
     string interface;
     unsigned long long time;
@@ -42,7 +36,9 @@ private:
     bool v2ipFlag = false;
     bool v2macFlag = false;
 
-    void parse(int argc, char **argv);
+    void parse(int argc, char **argv) override;
+
+    void validate() override;
 
 public:
     SpoofArguments(int argc, char **argv);

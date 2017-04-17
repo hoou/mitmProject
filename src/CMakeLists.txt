@@ -2,6 +2,7 @@ include_directories(.)
 
 set(SCANNER_SOURCE_FILES
         scanner.cpp
+        Arguments.cpp
         ScannerArguments.cpp
         NetworkInterface.cpp
         Subnet.cpp
@@ -18,6 +19,7 @@ set(SCANNER_SOURCE_FILES
 
 set(SPOOF_SOURCE_FILES
         spoof.cpp
+        Arguments.cpp
         SpoofArguments.cpp
         Utils.cpp
         NetworkInterface.cpp
@@ -32,6 +34,7 @@ set(SPOOF_SOURCE_FILES
 
 set(INTERCEPT_SOURCE_FILES
         intercept.cpp
+        Arguments.cpp
         ScannerArguments.cpp
         NetworkInterface.cpp
         Packet.cpp
