@@ -1,8 +1,5 @@
 #include <sstream>
-#include <iostream>
 #include "InterceptPacketManager.h"
-#include "IPv4_packet.h"
-#include "IPv6_packet.h"
 
 InterceptPacketManager::InterceptPacketManager(NetworkInterface &networkInterface, Host from, Host to)
         : PacketManager(networkInterface), from(from), to(to) {
@@ -30,8 +27,6 @@ void InterceptPacketManager::initFilters() {
         filter << InterceptPacketManager::createDstFilter(networkInterface.getHost()->getIpv6addresses());
     }
     filter << "))";
-
-    cout << filter.str() << endl;
 
     setListenFilterExpression(filter.str());
 }
