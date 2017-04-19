@@ -1,4 +1,5 @@
 #include <sstream>
+#include <iostream>
 #include "InterceptPacketManager.h"
 
 InterceptPacketManager::InterceptPacketManager(NetworkInterface &networkInterface, Host from, Host to)
@@ -13,9 +14,9 @@ void InterceptPacketManager::initFilters() {
     filter << "(ether src " << Utils::formatMacAddress(from.getMacAddress(), six_groups_of_two_hexa_digits_sep_colon)
            << ")";
 
-    filter << " and ";
-    filter << "(ether dst " << Utils::formatMacAddress(networkInterface.getHost()->getMacAddress(),
-                                                       six_groups_of_two_hexa_digits_sep_colon) << ")";
+//    filter << " and ";
+//    filter << "(ether dst " << Utils::formatMacAddress(networkInterface.getHost()->getMacAddress(),
+//                                                       six_groups_of_two_hexa_digits_sep_colon) << ")";
 
     filter << " and ";
     filter << "( not (";
@@ -32,6 +33,7 @@ void InterceptPacketManager::initFilters() {
 }
 
 void InterceptPacketManager::processPacket(u_char *payload, size_t length) {
+//    cout << "I caught packet!" << endl;
     Packet packet(payload, length);
     packet.setEthernetSourceAddress(networkInterface.getHost()->getMacAddress());
     packet.setEthernetDestinationAddress(to.getMacAddress());
