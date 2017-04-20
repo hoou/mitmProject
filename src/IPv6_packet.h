@@ -6,6 +6,7 @@
 #include "Packet.h"
 
 #define IP6_HDRLEN 40  // IPv6 header length
+#define IP6_HOPBYHOPOPTS_HDRLEN 8 // IPv6 Hop-by-Hop Options header length
 
 using namespace std;
 
@@ -17,11 +18,20 @@ protected:
 
     struct ip6_hdr ipv6Header;
 
-    static struct ip6_hdr
-    constructIPv6Header(uint16_t payloadLength, uint8_t nextHeader, in6_addr srcAddr, in6_addr destAddr);
+    static struct ip6_hdr constructIPv6Header(
+            uint16_t payloadLength,
+            uint8_t nextHeader,
+            in6_addr srcAddr,
+            in6_addr destAddr
+    );
 
-    static vector<uint8_t> constructDestinationOptionsHeader(uint8_t nextHeader, uint8_t length,
-                                                             vector<uint8_t> options);
+    static vector<uint8_t> constructDestinationOptionsHeader(
+            uint8_t nextHeader,
+            uint8_t length,
+            vector<uint8_t> options
+    );
+
+    static vector<uint8_t> constructHopByHopOptions(uint8_t nextHeader, uint8_t length, vector<uint8_t> options);
 
 public:
 

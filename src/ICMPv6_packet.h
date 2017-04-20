@@ -90,7 +90,8 @@ public:
             mac_addr senderHardwareAddress,
             in6_addr sourceAddress,
             mac_addr targetHardwareAddress,
-            in6_addr destinationAddress
+            in6_addr destinationAddress,
+            in6_addr multicastAddress
     );
 };
 

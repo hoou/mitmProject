@@ -46,8 +46,11 @@ struct ip6_hdr IPv6_packet::constructIPv6Header(
     return header;
 }
 
-vector<uint8_t>
-IPv6_packet::constructDestinationOptionsHeader(uint8_t nextHeader, uint8_t length, vector<uint8_t> options) {
+vector<uint8_t> IPv6_packet::constructDestinationOptionsHeader(
+        uint8_t nextHeader,
+        uint8_t length,
+        vector<uint8_t> options
+) {
     struct ip6_dest optionsHeader;
 
     optionsHeader.ip6d_nxt = nextHeader;
@@ -68,4 +71,25 @@ in6_addr IPv6_packet::getSourceAddress() {
 
 in6_addr IPv6_packet::getDestinationAddress() {
     return ipv6Header.ip6_dst;
+}
+
+vector<uint8_t> IPv6_packet::constructHopByHopOptions(
+        uint8_t nextHeader,
+        uint8_t length,
+        vector<uint8_t> options
+) {
+    struct ip6_hbh header;
+
+    /* Header */
+    header.ip6h_nxt = nextHeader;
+    header.ip6h_len = length;
+
+    vector<uint8_t> result((uint8_t *) (&header), ((uint8_t *) (&header)) + sizeof(struct ip6_hbh));
+
+    /* Payload */
+    for (size_t i = 0; i < options.size(); i++) {
+        result.push_back(options[i]);
+    }
+
+    return result;
 }

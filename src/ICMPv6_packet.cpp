@@ -61,9 +61,8 @@ struct mld_hdr ICMPv6_packet::constructMulticastListenerQueryHeader(
 
     header.mld_icmp6_hdr = constructICMP6header(MLD_LISTENER_QUERY, 0);
     header.mld_maxdelay = htons(maximumResponseDelay);
-//    header.mld_addr = multicastAddress;
-
-    header.mld_addr = Utils::stringToIpv6("::");
+    header.mld_reserved = 0;
+    header.mld_addr = multicastAddress;
 
     return header;
 }
@@ -215,7 +214,8 @@ ICMPv6_packet *ICMPv6_packet::createMulticastListenerQuery(
         mac_addr senderHardwareAddress,
         in6_addr sourceAddress,
         mac_addr targetHardwareAddress,
-        in6_addr destinationAddress
+        in6_addr destinationAddress,
+        in6_addr multicastAddress
 ) {
     uint8_t *data;
     size_t length;
@@ -223,12 +223,19 @@ ICMPv6_packet *ICMPv6_packet::createMulticastListenerQuery(
 
     struct ether_header etherHeader = constructEthernetHeader(ETH_P_IPV6, senderHardwareAddress, targetHardwareAddress);
     struct ip6_hdr ipv6header = constructIPv6Header(
-            ICMP_MCAST_LISTEN_QUERY_HDRLEN,
-            IPPROTO_ICMPV6,
+            ICMP_MCAST_LISTEN_QUERY_HDRLEN + IP6_HOPBYHOPOPTS_HDRLEN,
+            IPPROTO_HOPOPTS,
             sourceAddress,
             destinationAddress
     );
-    struct mld_hdr mldHeader = constructMulticastListenerQueryHeader(1, destinationAddress);
+
+    vector<uint8_t> hopByHopOptions = constructHopByHopOptions(
+            IPPROTO_ICMPV6,
+            0,
+            {IP6OPT_ROUTER_ALERT, 0x02, 0x00, 0x00, IP6OPT_PADN, 0x00} // nmap -6 --script=targets-ipv6-multicast-mld
+    );
+
+    struct mld_hdr mldHeader = constructMulticastListenerQueryHeader(1, multicastAddress);
 
     /* Checksum */
     mldHeader.mld_icmp6_hdr.icmp6_cksum = icmp6_checksum(
@@ -238,12 +245,14 @@ ICMPv6_packet *ICMPv6_packet::createMulticastListenerQuery(
             sizeof(in6_addr)
     );
 
-    length = ETH_HLEN + IP6_HDRLEN + ICMP_MCAST_LISTEN_QUERY_HDRLEN;
+    length = ETH_HLEN + IP6_HDRLEN + IP6_HOPBYHOPOPTS_HDRLEN + ICMP_MCAST_LISTEN_QUERY_HDRLEN;
 
     data = (uint8_t *) malloc(length * sizeof(uint8_t));
     memcpy(data, &etherHeader, ETH_HLEN * sizeof(uint8_t));
     memcpy(data + ETH_HLEN, &ipv6header, IP6_HDRLEN * sizeof(uint8_t));
-    memcpy(data + ETH_HLEN + IP6_HDRLEN, &mldHeader, ICMP_MCAST_LISTEN_QUERY_HDRLEN * sizeof(uint8_t));
+    memcpy(data + ETH_HLEN + IP6_HDRLEN, hopByHopOptions.data(), IP6_HOPBYHOPOPTS_HDRLEN * sizeof(uint8_t));
+    memcpy(data + ETH_HLEN + IP6_HDRLEN + IP6_HOPBYHOPOPTS_HDRLEN, &mldHeader,
+           ICMP_MCAST_LISTEN_QUERY_HDRLEN * sizeof(uint8_t));
 
     icmPv6Packet = new ICMPv6_packet(data, length);
 
@@ -281,9 +290,9 @@ uint16_t ICMPv6_packet::icmp6_checksum(
     ptr++;
     *ptr = 0;
     ptr++;
-    *ptr = (char) ((ICMP_ECHO_REQUEST_HDRLEN + payloadlen) / 256);
+    *ptr = (char) ((sizeof(struct icmp6_hdr) + payloadlen) / 256);
     ptr++;
-    *ptr = (char) ((ICMP_ECHO_REQUEST_HDRLEN + payloadlen) % 256);
+    *ptr = (char) ((sizeof(struct icmp6_hdr) + payloadlen) % 256);
     ptr++;
     chksumlen += 4;
 
@@ -297,9 +306,10 @@ uint16_t ICMPv6_packet::icmp6_checksum(
     chksumlen += 3;
 
     // Copy next header field to buf (8 bits)
-    memcpy(ptr, &iphdr.ip6_nxt, sizeof(iphdr.ip6_nxt));
-    ptr += sizeof(iphdr.ip6_nxt);
-    chksumlen += sizeof(iphdr.ip6_nxt);
+    *ptr = (uint8_t) IPPROTO_ICMPV6;
+//    memcpy(ptr, &iphdr.ip6_nxt, sizeof(iphdr.ip6_nxt));
+    ptr += sizeof(uint8_t);
+    chksumlen += sizeof(uint8_t);
 
     // Copy ICMPv6 type to buf (8 bits)
     memcpy(ptr, &icmp6hdr.icmp6_type, sizeof(icmp6hdr.icmp6_type));
@@ -311,6 +321,14 @@ uint16_t ICMPv6_packet::icmp6_checksum(
     ptr += sizeof(icmp6hdr.icmp6_code);
     chksumlen += sizeof(icmp6hdr.icmp6_code);
 
+    // Copy ICMPv6 checksum to buf (16 bits)
+    // Zero, since we don't know it yet.
+    *ptr = 0;
+    ptr++;
+    *ptr = 0;
+    ptr++;
+    chksumlen += 2;
+
     // Copy ICMPv6 ID to buf (16 bits)
     memcpy(ptr, &icmp6hdr.icmp6_id, sizeof(icmp6hdr.icmp6_id));
     ptr += sizeof(icmp6hdr.icmp6_id);
@@ -320,14 +338,6 @@ uint16_t ICMPv6_packet::icmp6_checksum(
     memcpy(ptr, &icmp6hdr.icmp6_seq, sizeof(icmp6hdr.icmp6_seq));
     ptr += sizeof(icmp6hdr.icmp6_seq);
     chksumlen += sizeof(icmp6hdr.icmp6_seq);
-
-    // Copy ICMPv6 checksum to buf (16 bits)
-    // Zero, since we don't know it yet.
-    *ptr = 0;
-    ptr++;
-    *ptr = 0;
-    ptr++;
-    chksumlen += 2;
 
     // Copy ICMPv6 payload to buf
     memcpy(ptr, payload, payloadlen * sizeof(uint8_t));

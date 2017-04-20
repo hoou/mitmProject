@@ -71,7 +71,8 @@ int main(int argc, char **argv) {
                     networkInterface.getHost()->getMacAddress(),
                     myIPv6address,
                     Utils::constructEthernetAllNodesMulticastAddress(),
-                    Utils::constructIpv6AllNodesMulticastAddress()
+                    Utils::constructIpv6AllNodesMulticastAddress(),
+                    Utils::stringToIpv6("::")
             );
 
             icmpv6PacketManager.send(icmpv6Packet);
