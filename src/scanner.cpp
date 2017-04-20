@@ -66,6 +66,19 @@ int main(int argc, char **argv) {
             delete malformedIcmpv6Packet;
         }
 
+        for (auto &myIPv6address : networkInterface.getHost()->getIpv6addresses()) {
+            ICMPv6_packet *icmpv6Packet = ICMPv6_packet::createMulticastListenerQuery(
+                    networkInterface.getHost()->getMacAddress(),
+                    myIPv6address,
+                    Utils::constructEthernetAllNodesMulticastAddress(),
+                    Utils::constructIpv6AllNodesMulticastAddress()
+            );
+
+            icmpv6PacketManager.send(icmpv6Packet);
+            usleep(1);
+            delete icmpv6Packet;
+        }
+
         alarm(20);
         signal(SIGALRM, signalHandler);
 

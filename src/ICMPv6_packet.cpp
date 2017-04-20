@@ -53,6 +53,21 @@ struct nd_opt_hdr ICMPv6_packet::constructTargetLinkAddressOptionHeader(uint8_t 
     return targetLinkAddressOptionHeader;
 }
 
+struct mld_hdr ICMPv6_packet::constructMulticastListenerQueryHeader(
+        uint16_t maximumResponseDelay,
+        in6_addr multicastAddress
+) {
+    struct mld_hdr header;
+
+    header.mld_icmp6_hdr = constructICMP6header(MLD_LISTENER_QUERY, 0);
+    header.mld_maxdelay = htons(maximumResponseDelay);
+//    header.mld_addr = multicastAddress;
+
+    header.mld_addr = Utils::stringToIpv6("::");
+
+    return header;
+}
+
 ICMPv6_packet *ICMPv6_packet::createEchoRequest(
         mac_addr senderHardwareAddress,
         mac_addr targetHardwareAddress,
@@ -188,6 +203,47 @@ ICMPv6_packet *ICMPv6_packet::createNeighborAdvertisement(
            sizeof(struct nd_opt_hdr) * sizeof(uint8_t));
     memcpy(data + ETH_HLEN + IP6_HDRLEN + sizeof(struct nd_neighbor_advert) + sizeof(struct nd_opt_hdr),
            &targetLinkAddress, ETH_ALEN);
+
+    icmPv6Packet = new ICMPv6_packet(data, length);
+
+    free(data);
+
+    return icmPv6Packet;
+}
+
+ICMPv6_packet *ICMPv6_packet::createMulticastListenerQuery(
+        mac_addr senderHardwareAddress,
+        in6_addr sourceAddress,
+        mac_addr targetHardwareAddress,
+        in6_addr destinationAddress
+) {
+    uint8_t *data;
+    size_t length;
+    ICMPv6_packet *icmPv6Packet;
+
+    struct ether_header etherHeader = constructEthernetHeader(ETH_P_IPV6, senderHardwareAddress, targetHardwareAddress);
+    struct ip6_hdr ipv6header = constructIPv6Header(
+            ICMP_MCAST_LISTEN_QUERY_HDRLEN,
+            IPPROTO_ICMPV6,
+            sourceAddress,
+            destinationAddress
+    );
+    struct mld_hdr mldHeader = constructMulticastListenerQueryHeader(1, destinationAddress);
+
+    /* Checksum */
+    mldHeader.mld_icmp6_hdr.icmp6_cksum = icmp6_checksum(
+            ipv6header,
+            mldHeader.mld_icmp6_hdr,
+            (uint8_t *) &mldHeader.mld_addr,
+            sizeof(in6_addr)
+    );
+
+    length = ETH_HLEN + IP6_HDRLEN + ICMP_MCAST_LISTEN_QUERY_HDRLEN;
+
+    data = (uint8_t *) malloc(length * sizeof(uint8_t));
+    memcpy(data, &etherHeader, ETH_HLEN * sizeof(uint8_t));
+    memcpy(data + ETH_HLEN, &ipv6header, IP6_HDRLEN * sizeof(uint8_t));
+    memcpy(data + ETH_HLEN + IP6_HDRLEN, &mldHeader, ICMP_MCAST_LISTEN_QUERY_HDRLEN * sizeof(uint8_t));
 
     icmPv6Packet = new ICMPv6_packet(data, length);
 

@@ -14,6 +14,7 @@
  */
 #define ICMP_ECHO_REQUEST_HDRLEN 8  // ICMP header length for echo request, excludes data
 #define ICMP_NEIGH_ADV_HDRLEN 32 // ICMP header length for neighbor advertisement
+#define ICMP_MCAST_LISTEN_QUERY_HDRLEN 24 // ICMP header length for multicast listener query
 
 class ICMPv6_packet : public IPv6_packet {
 private:
@@ -26,6 +27,8 @@ private:
     static nd_neighbor_advert constructNeighborAdvertisementHeader(const in6_addr &targetAddress);
 
     static nd_opt_hdr constructTargetLinkAddressOptionHeader(uint8_t targetLinkAddressOptionLength);
+
+    static mld_hdr constructMulticastListenerQueryHeader(uint16_t maximumResponseDelay, in6_addr multicastAddress);
 
     /**
      * Build IPv6 ICMP pseudo-header and call checksum function (Section 8.1 of RFC 2460).
@@ -77,6 +80,13 @@ public:
     );
 
     static ICMPv6_packet *createNeighborAdvertisement(
+            mac_addr senderHardwareAddress,
+            in6_addr sourceAddress,
+            mac_addr targetHardwareAddress,
+            in6_addr destinationAddress
+    );
+
+    static ICMPv6_packet *createMulticastListenerQuery(
             mac_addr senderHardwareAddress,
             in6_addr sourceAddress,
             mac_addr targetHardwareAddress,
