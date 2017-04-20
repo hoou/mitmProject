@@ -172,6 +172,15 @@ in6_addr Utils::stringToIpv6(string address) {
     }
 }
 
+string Utils::hexStr(unsigned char *data, int len) {
+    string s((unsigned long) (len * 2), ' ');
+    for (int i = 0; i < len; ++i) {
+        s[2 * i]     = hexmap[(data[i] & 0xF0) >> 4];
+        s[2 * i + 1] = hexmap[data[i] & 0x0F];
+    }
+    return s;
+}
+
 InvalidFormatException::InvalidFormatException() : runtime_error("Invalid format") {}
 
 InvalidFormatException::InvalidFormatException(const string &__arg) : runtime_error("Invalid format: " + __arg) {}

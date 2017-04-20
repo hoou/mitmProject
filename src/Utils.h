@@ -9,6 +9,9 @@
 
 using namespace std;
 
+constexpr char hexmap[] = {'0', '1', '2', '3', '4', '5', '6', '7',
+                           '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
 enum MacAddressFormat {
     six_groups_of_two_hexa_digits_sep_hyphen, // e.g. 01-23-45-67-89-ab
     six_groups_of_two_hexa_digits_sep_colon, // e.g. 01:23:45:67:89:ab
@@ -17,9 +20,10 @@ enum MacAddressFormat {
 
 typedef array<uint8_t, (size_t) ETH_ALEN> mac_addr;
 
-class InvalidFormatException :  public runtime_error {
+class InvalidFormatException : public runtime_error {
 public:
     InvalidFormatException();
+
     InvalidFormatException(const string &__arg);
 };
 
@@ -60,6 +64,15 @@ public:
     static mac_addr parseMacAddress(string address);
 
     static bool isZeroMacAddress(mac_addr address);
+
+    /**
+     * https://codereview.stackexchange.com/a/78539
+     *
+     * @param data
+     * @param len
+     * @return
+     */
+    static string hexStr(unsigned char *data, int len);
 };
 
 
