@@ -41,12 +41,7 @@ in_addr Utils::constructIpv4addressFromRawData(const uint8_t *data) {
 }
 
 in6_addr Utils::constructIpv6AllNodesMulticastAddress() {
-    string address = "ff02::1";
-    in6_addr constructedAddress;
-
-    inet_pton(AF_INET6, address.c_str(), &constructedAddress);
-
-    return constructedAddress;
+    return Utils::stringToIpv6("ff02::1");
 }
 
 string Utils::ipv6ToString(in6_addr address) {
