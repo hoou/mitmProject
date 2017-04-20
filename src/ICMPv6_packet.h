@@ -21,6 +21,8 @@ private:
 
     static icmp6_hdr constructICMP6header(uint8_t type, uint8_t code);
 
+    static icmp6_hdr constructICMP6echoRequestHeader();
+
     static nd_neighbor_advert constructNeighborAdvertisementHeader(const in6_addr &targetAddress);
 
     static nd_opt_hdr constructTargetLinkAddressOptionHeader(uint8_t targetLinkAddressOptionLength);

@@ -5,16 +5,45 @@ ICMPv6_packet::ICMPv6_packet(const uint8_t *data, size_t length) : IPv6_packet(d
     setupHeader();
 }
 
+void ICMPv6_packet::setupHeader() {
+    memcpy(&icmp6Header, rawData + ETH_HLEN + IP6_HDRLEN, sizeof(icmp6Header) * sizeof(uint8_t));
+}
+
+icmp6_hdr ICMPv6_packet::constructICMP6header(uint8_t type, uint8_t code) {
+    struct icmp6_hdr header;
+
+    // Message Type
+    header.icmp6_type = type;
+
+    // Message Code
+    header.icmp6_code = code;
+
+    // ICMP header checksum - set to 0 before calculating checksum
+    header.icmp6_cksum = 0;
+
+    return header;
+}
+
+icmp6_hdr ICMPv6_packet::constructICMP6echoRequestHeader() {
+    struct icmp6_hdr header;
+
+    header = constructICMP6header(ICMP6_ECHO_REQUEST, 0);
+
+    // Identifier - usually pid of sending process - i picked random number
+    header.icmp6_id = htons(0x4B1D); // *** FORBIDDEN ***
+
+    // Sequence Number
+    header.icmp6_seq = htons(0);
+
+    return header;
+}
+
 struct nd_neighbor_advert ICMPv6_packet::constructNeighborAdvertisementHeader(const in6_addr &targetAddress) {
     struct nd_neighbor_advert neighborAdvertisementHeader;
     neighborAdvertisementHeader.nd_na_hdr = constructICMP6header(ND_NEIGHBOR_ADVERT, 0);
     neighborAdvertisementHeader.nd_na_flags_reserved = ND_NA_FLAG_SOLICITED | ND_NA_FLAG_OVERRIDE;
     neighborAdvertisementHeader.nd_na_target = targetAddress;
     return neighborAdvertisementHeader;
-}
-
-void ICMPv6_packet::setupHeader() {
-    memcpy(&icmp6Header, rawData + ETH_HLEN + IP6_HDRLEN, sizeof(icmp6Header) * sizeof(uint8_t));
 }
 
 struct nd_opt_hdr ICMPv6_packet::constructTargetLinkAddressOptionHeader(uint8_t targetLinkAddressOptionLength) {
@@ -41,7 +70,7 @@ ICMPv6_packet *ICMPv6_packet::createEchoRequest(
             sourceAddress,
             destinationAddress
     );
-    struct icmp6_hdr icmp6Header = constructICMP6header(ICMP6_ECHO_REQUEST, 0);
+    struct icmp6_hdr icmp6Header = constructICMP6echoRequestHeader();
 
     /* Checksum */
     icmp6Header.icmp6_cksum = icmp6_checksum(ipv6header, icmp6Header, NULL, 0);
@@ -165,34 +194,6 @@ ICMPv6_packet *ICMPv6_packet::createNeighborAdvertisement(
     free(data);
 
     return icmPv6Packet;
-}
-
-icmp6_hdr ICMPv6_packet::constructICMP6header(uint8_t type, uint8_t code) {
-    struct icmp6_hdr header;
-
-    /*
-     * http://www.pdbuchan.com/rawsock/rawsock.html
-     * Table 9:	sd = socket (PF_PACKET, SOCK_RAW, htons (ETH_P_ALL));
-     * icmp6_ll.c
-     *
-     */
-
-    // Message Type (8 bits)
-    header.icmp6_type = type;
-
-    // Message Code (8 bits)
-    header.icmp6_code = code;
-
-    // Identifier (16 bits): usually pid of sending process - pick a number
-    header.icmp6_id = htons(0x4B1D);
-
-    // Sequence Number (16 bits): starts at 0
-    header.icmp6_seq = htons(0);
-
-    // ICMP header checksum (16 bits): set to 0 when calculating checksum
-    header.icmp6_cksum = 0;
-
-    return header;
 }
 
 uint16_t ICMPv6_packet::icmp6_checksum(
