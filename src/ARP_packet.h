@@ -1,5 +1,5 @@
-#ifndef PROJEKT_NEW_ARPPACKET_H
-#define PROJEKT_NEW_ARPPACKET_H
+#ifndef PDS_MITM_ARPPACKET_H
+#define PDS_MITM_ARPPACKET_H
 
 #include <net/ethernet.h>
 #include <netinet/if_ether.h>
@@ -66,4 +66,4 @@ public:
 };
 
 
-#endif //PROJEKT_NEW_ARPPACKET_H
+#endif //PDS_MITM_ARPPACKET_H

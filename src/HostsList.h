@@ -1,5 +1,5 @@
-#ifndef PROJEKT_NEW_HOSTSLIST_H
-#define PROJEKT_NEW_HOSTSLIST_H
+#ifndef PDS_MITM_HOSTSLIST_H
+#define PDS_MITM_HOSTSLIST_H
 
 #include <vector>
 #include <map>
@@ -40,4 +40,4 @@ public:
 };
 
 
-#endif //PROJEKT_NEW_HOSTSLIST_H
+#endif //PDS_MITM_HOSTSLIST_H

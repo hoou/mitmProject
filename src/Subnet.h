@@ -1,5 +1,5 @@
-#ifndef PROJEKT_NEW_SUBNET_H
-#define PROJEKT_NEW_SUBNET_H
+#ifndef PDS_MITM_SUBNET_H
+#define PDS_MITM_SUBNET_H
 
 #include <string>
 #include <arpa/inet.h>
@@ -37,4 +37,4 @@ public:
 };
 
 
-#endif //PROJEKT_NEW_SUBNET_H
+#endif //PDS_MITM_SUBNET_H

@@ -1,5 +1,5 @@
-#ifndef PROJEKT_NEW_UTILS_H
-#define PROJEKT_NEW_UTILS_H
+#ifndef PDS_MITM_UTILS_H
+#define PDS_MITM_UTILS_H
 
 #include <pcap.h>
 #include <arpa/inet.h>
@@ -76,4 +76,4 @@ public:
 };
 
 
-#endif //PROJEKT_NEW_UTILS_H
+#endif //PDS_MITM_UTILS_H

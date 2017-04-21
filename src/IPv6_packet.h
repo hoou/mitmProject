@@ -1,5 +1,5 @@
-#ifndef PROJEKT_NEW_IPV6_PACKET_H
-#define PROJEKT_NEW_IPV6_PACKET_H
+#ifndef PDS_MITM_IPV6_PACKET_H
+#define PDS_MITM_IPV6_PACKET_H
 
 #include <netinet/ip6.h>
 #include <vector>
@@ -42,4 +42,4 @@ public:
     in6_addr getDestinationAddress();
 };
 
-#endif //PROJEKT_NEW_IPV6_PACKET_H
+#endif //PDS_MITM_IPV6_PACKET_H

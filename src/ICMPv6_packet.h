@@ -1,5 +1,5 @@
-#ifndef PROJEKT_NEW_ICMPV6_PACKET_H
-#define PROJEKT_NEW_ICMPV6_PACKET_H
+#ifndef PDS_MITM_ICMPV6_PACKET_H
+#define PDS_MITM_ICMPV6_PACKET_H
 
 
 #include "Packet.h"
@@ -96,4 +96,4 @@ public:
 };
 
 
-#endif //PROJEKT_NEW_ICMPV6_PACKET_H
+#endif //PDS_MITM_ICMPV6_PACKET_H

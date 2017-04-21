@@ -1,5 +1,5 @@
-#ifndef PROJEKT_NEW_PACKET_H
-#define PROJEKT_NEW_PACKET_H
+#ifndef PDS_MITM_PACKET_H
+#define PDS_MITM_PACKET_H
 
 #include <vector>
 #include <netinet/if_ether.h>
@@ -43,4 +43,4 @@ public:
 };
 
 
-#endif //PROJEKT_NEW_PACKET_H
+#endif //PDS_MITM_PACKET_H
