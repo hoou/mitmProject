@@ -45,6 +45,15 @@ const string &ScannerArguments::getFile() const {
 }
 
 void ScannerArguments::printUsage() {
-    //TODO finish
-    cout << "Usage:" << endl;
+    cout << "Usage: ./pds-scanner -i interface -f file" << endl;
+    cout << "Required arguments:" << endl;
+    cout << "interface - name of network interface, where scan will be performed" << endl;
+    cout << "file - output filename with found hosts" << endl;
+}
+
+void ScannerArguments::printInterceptUsage() {
+    cout << "Usage: ./pds-intercept -i interface -f file" << endl;
+    cout << "Required arguments:" << endl;
+    cout << "interface - name of network interface, where intercept will be performed" << endl;
+    cout << "file - input filename with marked victims" << endl;
 }

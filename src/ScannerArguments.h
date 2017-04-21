@@ -24,6 +24,8 @@ public:
     const string &getFile() const;
 
     static void printUsage();
+
+    static void printInterceptUsage();
 };
 
 

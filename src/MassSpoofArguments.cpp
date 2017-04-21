@@ -55,8 +55,12 @@ void MassSpoofArguments::validate() {
 }
 
 void MassSpoofArguments::printUsage() {
-    //TODO finish
-    cout << "Usage:" << endl;
+    cout << "Usage: ./pds-massspoof -i interface -t sec -p protocol -f file" << endl;
+    cout << "Required arguments:" << endl;
+    cout << "interface - name of network interface where spoof will be performed" << endl;
+    cout << "sec - interval in milliseconds for sending ARP/NDP packets that causes cache poisoning" << endl;
+    cout << "protocol - arp or ndp - which protocol to use to poison cache" << endl;
+    cout << "file - input file with marked victim pairs" << endl;
 }
 
 const string &MassSpoofArguments::getInterface() const {

@@ -148,6 +148,12 @@ const mac_addr &SpoofArguments::getVictim2MacAddress() const {
 }
 
 void SpoofArguments::printUsage() {
-    //TODO finish
-    cout << "Usage:" << endl;
+    cout << "Usage: ./pds-spoof -i interface -t sec -p protocol -victim1ip ipaddress";
+    cout << "-victim1mac macaddress -victim2ip ipaddress -victim2mac macaddress" << endl;
+    cout << "Required arguments:" << endl;
+    cout << "interface - name of network interface where spoof will be performed" << endl;
+    cout << "sec - interval in milliseconds for sending ARP/NDP packets that causes cache poisoning" << endl;
+    cout << "protocol - arp or ndp - which protocol to use to poison cache" << endl;
+    cout << "ipaddress - IPv4 or IPv6 address of victim" << endl;
+    cout << "macaddress - MAC address of victim" << endl;
 }

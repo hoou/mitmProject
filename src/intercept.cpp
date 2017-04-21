@@ -47,6 +47,10 @@ int main(int argc, char *argv[]) {
 
         return EXIT_SUCCESS;
 
+    } catch (InvalidArgumentsException &e) {
+        cerr << e.what() << endl;
+        ScannerArguments::printInterceptUsage();
+        return EXIT_FAILURE;
     } catch (exception &e) {
         cerr << e.what() << endl;
         return EXIT_FAILURE;
