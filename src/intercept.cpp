@@ -32,8 +32,8 @@ int main(int argc, char *argv[]) {
             InterceptPacketManager *packetManager2to1 = new InterceptPacketManager(networkInterface,
                                                                                    group.getHosts()[1],
                                                                                    group.getHosts()[0]);
-            packetManager1to2->listen();
-            packetManager2to1->listen();
+            packetManager1to2->listen(); // Capture packets sent from victim 1 for victim 2 and resend it to victim 2
+            packetManager2to1->listen(); // Capture packets sent from victim 2 for victim 1 and resend it to victim 1
         }
 
         for (auto &instance : InterceptPacketManager::getInstances()) {

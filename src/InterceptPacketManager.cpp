@@ -34,7 +34,11 @@ void InterceptPacketManager::initFilters() {
 
 void InterceptPacketManager::processPacket(u_char *payload, size_t length) {
     Packet packet(payload, length);
+
+    /* Change source and destination MAC addresses */
     packet.setEthernetSourceAddress(networkInterface.getHost()->getMacAddress());
     packet.setEthernetDestinationAddress(to.getMacAddress());
+
+    /* Send packet with modified MAC addresses to other victim */
     send(&packet);
 }

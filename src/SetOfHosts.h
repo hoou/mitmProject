@@ -72,12 +72,16 @@ public:
 
     /**
      * Export set of hosts to XML
+     * Inspired by: http://www.linuxquestions.org/questions/programming-9/creating-an-xml-file-using-libxml-745532/
+     *
      * @param filename name of XML
      */
     void exportToXML(string filename);
 
     /**
      * Import set of hosts from XML
+     * Inspired by: http://www.xmlsoft.org/examples/reader1.c
+     *
      * @param filename name of XML
      */
     void importFromXML(string filename);

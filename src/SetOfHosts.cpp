@@ -58,7 +58,6 @@ void SetOfHosts::insert(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *
     }
 }
 
-/* http://www.linuxquestions.org/questions/programming-9/creating-an-xml-file-using-libxml-745532/ */
 void SetOfHosts::exportToXML(string filename) {
     int status;
     xmlDocPtr pDocument;
@@ -99,7 +98,6 @@ void SetOfHosts::exportToXML(string filename) {
         throw runtime_error("Cannot create output XML file");
 }
 
-/* http://www.xmlsoft.org/examples/reader1.c */
 void SetOfHosts::importFromXML(string filename) {
     xmlTextReaderPtr reader;
     int ret = 0;

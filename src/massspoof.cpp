@@ -33,6 +33,7 @@ int main(int argc, char **argv) {
             return EXIT_SUCCESS;
 
         if (arguments.getProtocol() == "arp") {
+            /* Check if every attack can be performed - every host in every group must have at least 1 IPv4 address */
             for (auto &group : groupsOfVictims) {
                 if (group.getHosts()[0].getIpv4addresses().size() == 0 ||
                     group.getHosts()[1].getIpv4addresses().size() == 0) {
@@ -96,6 +97,7 @@ int main(int argc, char **argv) {
                 }
             }
         } else {
+            /* Check if every attack can be performed - every host in every group must have at least 1 IPv6 address */
             for (auto &group : groupsOfVictims) {
                 if (group.getHosts()[0].getIpv6addresses().size() == 0 ||
                     group.getHosts()[1].getIpv6addresses().size() == 0) {
@@ -174,5 +176,6 @@ int main(int argc, char **argv) {
 }
 
 void interruptHandler(int sig) {
+    /* Stop spoofing */
     loop = false;
 }

@@ -20,6 +20,7 @@ int main(int argc, char **argv) {
 
         arpPacketManager.listen();
 
+        /* Perform IPv4 scan with ARP requests for every address in range */
         for (auto &ipv4address : networkInterface.getHost()->getIpv4addresses()) {
             vector<in_addr> allPossibleHostAddresses = ipv4address.second.getAllPossibleHostAddresses();
             for (
@@ -43,13 +44,17 @@ int main(int argc, char **argv) {
 
         icmpv6PacketManager.listen();
 
+        /* Perform IPv6 scan with ICMPv6 echo request on All nodes multicast address(FF02::1) */
         for (auto &myIPv6address : networkInterface.getHost()->getIpv6addresses()) {
+            /* Send one normal echo request - but some devices may not respond to this one */
             ICMPv6_packet *icmpv6Packet = ICMPv6_packet::createEchoRequest(
                     networkInterface.getHost()->getMacAddress(),
                     Utils::constructEthernetAllNodesMulticastAddress(),
                     myIPv6address,
                     Utils::constructIpv6AllNodesMulticastAddress()
             );
+
+            /* Send one malformed echo request - more devices respond to this one as malformed packet */
             ICMPv6_packet *malformedIcmpv6Packet = ICMPv6_packet::createMalformedEchoRequest(
                     networkInterface.getHost()->getMacAddress(),
                     Utils::constructEthernetAllNodesMulticastAddress(),
@@ -66,6 +71,7 @@ int main(int argc, char **argv) {
             delete malformedIcmpv6Packet;
         }
 
+        /* Perform IPv6 scan with Multicast listener query on All nodes multicast address(FF02::1) */
         for (auto &myIPv6address : networkInterface.getHost()->getIpv6addresses()) {
             ICMPv6_packet *icmpv6Packet = ICMPv6_packet::createMulticastListenerQuery(
                     networkInterface.getHost()->getMacAddress(),
@@ -80,22 +86,24 @@ int main(int argc, char **argv) {
             delete icmpv6Packet;
         }
 
+        /* Wait 20 seconds after sending all those packets for responses */
         alarm(20);
         signal(SIGALRM, signalHandler);
 
         arpPacketManager.wait();
         icmpv6PacketManager.wait();
 
-        SetOfHosts hostsList(
+        /* Make set of hosts from captured packets */
+        SetOfHosts setOfHosts(
                 (vector<ARP_packet *> &) arpPacketManager.getCaughtPackets(),
                 (vector<ICMPv6_packet *> &) icmpv6PacketManager.getCaughtPackets()
         );
 
-        /* Remove my mac address from hosts list */
-        hostsList.remove(networkInterface.getHost()->getMacAddress());
+        /* Remove my MAC address from hosts list */
+        setOfHosts.remove(networkInterface.getHost()->getMacAddress());
 
-        hostsList.exportToXML(arguments.getFile());
-
+        /* Export this set to file */
+        setOfHosts.exportToXML(arguments.getFile());
     }
     catch (InvalidArgumentsException &e) {
         cerr << e.what() << endl;

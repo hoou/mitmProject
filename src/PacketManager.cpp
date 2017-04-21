@@ -107,7 +107,7 @@ void PacketManager<T>::setupFilters() {
     int status;
     struct bpf_program filter;
 
-    /* no filter */
+    /* No filter, don't setup anything */
     if (listenFilterExpression.empty())
         return;
 

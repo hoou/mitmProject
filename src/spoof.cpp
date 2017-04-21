@@ -126,5 +126,6 @@ int main(int argc, char **argv) {
 }
 
 void interruptHandler(int sig) {
+    /* Stop spoofing */
     loop = false;
 }
