@@ -27,6 +27,9 @@ public:
     InvalidFormatException(const string &__arg);
 };
 
+/**
+ * Utility class mostly for working with all kinds of addresses.
+ */
 class Utils {
 public:
     static unsigned long long calculateNumberOfAvailableHosts(in_addr subnetMask);

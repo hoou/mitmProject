@@ -8,7 +8,7 @@ set(SCANNER_SOURCE_FILES
         Subnet.cpp
         Utils.cpp
         ARP_packet.cpp
-        HostsList.cpp
+        SetOfHosts.cpp
         PacketManager.cpp
         Packet.cpp
         ICMPv6_packet.cpp
@@ -43,7 +43,7 @@ set(MASSSPOOF_SOURCE_FILES
         Packet.cpp
         Subnet.cpp
         Host.cpp
-        HostsList.cpp
+        SetOfHosts.cpp
         Group.cpp
         ICMPv6_packet.cpp
         IPv6_packet.cpp
@@ -63,7 +63,7 @@ set(INTERCEPT_SOURCE_FILES
         IPv6_packet.cpp
         InterceptPacketManager.cpp
         Host.cpp
-        HostsList.cpp
+        SetOfHosts.cpp
         Group.cpp
         IPv4_packet.cpp
         )

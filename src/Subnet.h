@@ -7,6 +7,9 @@
 
 using namespace std;
 
+/**
+ * Network subnet
+ */
 class Subnet {
 private:
     in_addr address;
@@ -17,6 +20,13 @@ private:
     unsigned long long numberOfAvailableHosts;
 
 public:
+    /**
+     * Construct subnet with given IPv4 address and netmask and calculate all necessary addresses and numbers
+     * such as broadcast address, number of available hosts etc.
+     *
+     * @param address
+     * @param mask
+     */
     Subnet(const in_addr &address, const in_addr &mask);
 
     vector<in_addr> getAllPossibleHostAddresses() const;
@@ -33,6 +43,9 @@ public:
 
     unsigned long long int getNumberOfAvailableHosts() const;
 
+    /**
+     * Print subnet information
+     */
     void print();
 };
 

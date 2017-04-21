@@ -2,19 +2,19 @@
 #include <netinet/in.h>
 #include <fstream>
 #include <libxml/xmlreader.h>
-#include "HostsList.h"
+#include "SetOfHosts.h"
 
-HostsList::HostsList() {}
+SetOfHosts::SetOfHosts() {}
 
-HostsList::HostsList(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *> &icmpv6Packets) {
+SetOfHosts::SetOfHosts(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *> &icmpv6Packets) {
     insert(arpPackets, icmpv6Packets);
 }
 
-HostsList::HostsList(string filename) {
+SetOfHosts::SetOfHosts(string filename) {
     importFromXML(filename);
 }
 
-void HostsList::insert(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *> &icmpv6Packets) {
+void SetOfHosts::insert(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *> &icmpv6Packets) {
     set<Host>::iterator it;
 
     for (auto &arpPacket : arpPackets) {
@@ -59,7 +59,7 @@ void HostsList::insert(vector<ARP_packet *> &arpPackets, vector<ICMPv6_packet *>
 }
 
 /* http://www.linuxquestions.org/questions/programming-9/creating-an-xml-file-using-libxml-745532/ */
-void HostsList::exportToXML(string filename) {
+void SetOfHosts::exportToXML(string filename) {
     int status;
     xmlDocPtr pDocument;
     xmlNodePtr pRootNode;
@@ -100,7 +100,7 @@ void HostsList::exportToXML(string filename) {
 }
 
 /* http://www.xmlsoft.org/examples/reader1.c */
-void HostsList::importFromXML(string filename) {
+void SetOfHosts::importFromXML(string filename) {
     xmlTextReaderPtr reader;
     int ret = 0;
     const xmlChar *name, *value, *attr;
@@ -176,19 +176,19 @@ void HostsList::importFromXML(string filename) {
     }
 }
 
-void HostsList::remove(mac_addr address) {
+void SetOfHosts::remove(mac_addr address) {
     hosts.erase(Host(address));
 }
 
-set<Host>::iterator HostsList::find(mac_addr address) {
+set<Host>::iterator SetOfHosts::find(mac_addr address) {
     return hosts.find(Host(address));
 }
 
-const set<Host> &HostsList::getHosts() const {
+const set<Host> &SetOfHosts::getHosts() const {
     return hosts;
 }
 
-set<Group> HostsList::getGroups() {
+set<Group> SetOfHosts::getGroups() {
     set<Group> groups;
 
     for (auto &host : hosts) {
@@ -210,7 +210,7 @@ set<Group> HostsList::getGroups() {
     return groups;
 }
 
-bool HostsList::hasEveryGroupExactlyTwoHosts(set<Group> groups) {
+bool SetOfHosts::hasEveryGroupExactlyTwoHosts(set<Group> groups) {
     bool res = true;
 
     for (auto &group : groups) {

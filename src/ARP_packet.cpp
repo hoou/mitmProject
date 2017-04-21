@@ -48,7 +48,6 @@ ARP_packet *ARP_packet::create(
     return arpPacket;
 }
 
-/* http://www.microhowto.info/howto/send_an_arbitrary_ethernet_frame_using_libpcap/send_arp.c */
 ARP_packet *ARP_packet::createRequest(
         mac_addr senderHardwareAddress,
         in_addr senderProtocolAddress,

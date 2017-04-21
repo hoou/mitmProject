@@ -7,6 +7,9 @@
 #include "Utils.h"
 #include "Subnet.h"
 
+/**
+ * Network host
+ */
 class Host {
 private:
     mac_addr macAddress;
@@ -29,6 +32,10 @@ public:
 
     const set<in6_addr> &getIpv6addresses() const;
 
+    /**
+     * Get name of group, that this host belongs to (when empty, host doesn't belong to any group)
+     * @return name of group
+     */
     const string &getGroupName() const;
 
     void setGroup(const string &group);

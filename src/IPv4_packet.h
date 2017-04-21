@@ -4,6 +4,9 @@
 #include <netinet/ip.h>
 #include "Packet.h"
 
+/**
+ * IPv4 packet
+ */
 class IPv4_packet : Packet {
 private:
     struct ip ipv4Header;
@@ -11,6 +14,11 @@ private:
     void setupHeader();
 
 public:
+    /**
+     * Construt IPv4 packet
+     * @param data packet raw data
+     * @param length length of packet
+     */
     IPv4_packet(const uint8_t *data, size_t length);
 
     in_addr getSourceAddress();

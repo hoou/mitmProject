@@ -4,7 +4,7 @@
 #include "NetworkInterface.h"
 #include "Packet.h"
 #include "InterceptPacketManager.h"
-#include "HostsList.h"
+#include "SetOfHosts.h"
 
 void interruptHandler(int sig);
 
@@ -13,11 +13,11 @@ int main(int argc, char *argv[]) {
         ScannerArguments arguments(argc, argv);
         NetworkInterface networkInterface(arguments.getInterface());
 
-        HostsList hostsList;
+        SetOfHosts hostsList;
         hostsList.importFromXML(arguments.getFile());
 
         set<Group> groupsOfVictims = hostsList.getGroups();
-        if (!HostsList::hasEveryGroupExactlyTwoHosts(groupsOfVictims)) {
+        if (!SetOfHosts::hasEveryGroupExactlyTwoHosts(groupsOfVictims)) {
             throw runtime_error("Every group must have exactly 2 hosts!");
         }
 

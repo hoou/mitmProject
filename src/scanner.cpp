@@ -3,7 +3,7 @@
 #include <signal.h>
 #include "NetworkInterface.h"
 #include "ScannerArguments.h"
-#include "HostsList.h"
+#include "SetOfHosts.h"
 #include "PacketManager.h"
 
 void signalHandler(int sig);
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
         arpPacketManager.wait();
         icmpv6PacketManager.wait();
 
-        HostsList hostsList(
+        SetOfHosts hostsList(
                 (vector<ARP_packet *> &) arpPacketManager.getCaughtPackets(),
                 (vector<ICMPv6_packet *> &) icmpv6PacketManager.getCaughtPackets()
         );

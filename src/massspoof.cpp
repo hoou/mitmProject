@@ -7,7 +7,7 @@
 #include "PacketManager.h"
 #include "ICMPv6_packet.h"
 #include "MassSpoofArguments.h"
-#include "HostsList.h"
+#include "SetOfHosts.h"
 
 bool loop = true;
 
@@ -23,9 +23,9 @@ int main(int argc, char **argv) {
         signal(SIGINT, interruptHandler);
         signal(SIGTERM, interruptHandler);
 
-        HostsList hostsList(arguments.getFilename());
+        SetOfHosts hostsList(arguments.getFilename());
         set<Group> groupsOfVictims = hostsList.getGroups();
-        if (!HostsList::hasEveryGroupExactlyTwoHosts(groupsOfVictims)) {
+        if (!SetOfHosts::hasEveryGroupExactlyTwoHosts(groupsOfVictims)) {
             throw runtime_error("Every group must have exactly 2 hosts!");
         }
 
