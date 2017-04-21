@@ -32,6 +32,23 @@ set(SPOOF_SOURCE_FILES
         IPv6_packet.cpp
         )
 
+set(MASSSPOOF_SOURCE_FILES
+        massspoof.cpp
+        Arguments.cpp
+        MassSpoofArguments.cpp
+        Utils.cpp
+        NetworkInterface.cpp
+        ARP_packet.cpp
+        PacketManager.cpp
+        Packet.cpp
+        Subnet.cpp
+        Host.cpp
+        HostsList.cpp
+        Group.cpp
+        ICMPv6_packet.cpp
+        IPv6_packet.cpp
+        )
+
 set(INTERCEPT_SOURCE_FILES
         intercept.cpp
         Arguments.cpp
@@ -55,10 +72,14 @@ add_executable(pds-scanner ${SCANNER_SOURCE_FILES})
 
 add_executable(pds-spoof ${SPOOF_SOURCE_FILES})
 
+add_executable(pds-massspoof ${MASSSPOOF_SOURCE_FILES})
+
 add_executable(pds-intercept ${INTERCEPT_SOURCE_FILES})
 
 target_link_libraries(pds-scanner ${PCAP_LIBRARIES} ${LIBXML2_LIBRARIES})
 
 target_link_libraries(pds-spoof ${PCAP_LIBRARIES})
+
+target_link_libraries(pds-massspoof ${PCAP_LIBRARIES} ${LIBXML2_LIBRARIES})
 
 target_link_libraries(pds-intercept ${PCAP_LIBRARIES} ${LIBXML2_LIBRARIES})
