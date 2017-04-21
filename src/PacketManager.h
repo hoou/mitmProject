@@ -18,6 +18,7 @@ private:
     pcap_t *sendPCAP_handle;
 
     mutex mtx;
+    static mutex setupFilterMtx;
     thread listenThread;
     string listenFilterExpression;
 

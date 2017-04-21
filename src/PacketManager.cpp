@@ -9,6 +9,9 @@ template<typename T>
 vector<PacketManager<T> *> PacketManager<T>::instances;
 
 template<typename T>
+mutex PacketManager<T>::setupFilterMtx;
+
+template<typename T>
 PacketManager<T>::PacketManager(NetworkInterface &networkInterface) : networkInterface(networkInterface) {
     instances.push_back(this);
 
@@ -108,16 +111,19 @@ void PacketManager<T>::setupFilters() {
     if (listenFilterExpression.empty())
         return;
 
+    PacketManager::setupFilterMtx.lock();
+
     status = pcap_compile(listenPCAP_handle, &filter, listenFilterExpression.c_str(), 0, 0);
-    if (status == -1) {
-        throw runtime_error(pcap_geterr(listenPCAP_handle));
-    }
+    if (status == -1)
+        throw runtime_error(string("pcap_compile: ") + pcap_geterr(listenPCAP_handle));
 
     status = pcap_setfilter(listenPCAP_handle, &filter);
     if (status == -1)
-        throw runtime_error(pcap_geterr(listenPCAP_handle));
+        throw runtime_error(string("pcap_setfilter: ") + pcap_geterr(listenPCAP_handle));
 
     pcap_freecode(&filter);
+
+    PacketManager::setupFilterMtx.unlock();
 }
 
 template<typename T>
