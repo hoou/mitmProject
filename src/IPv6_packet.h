@@ -26,6 +26,12 @@ protected:
 
     /**
      * Construct structure for IPv6 header
+     *
+     * inspired by:
+     * http://www.pdbuchan.com/rawsock/rawsock.html
+     * Table 9:	sd = socket (PF_PACKET, SOCK_RAW, htons (ETH_P_ALL));
+     * icmp6_ll.c
+     *
      * @param payloadLength
      * @param nextHeader
      * @param srcAddr source IPv6 address

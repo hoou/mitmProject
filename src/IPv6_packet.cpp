@@ -18,13 +18,6 @@ struct ip6_hdr IPv6_packet::constructIPv6Header(
 ) {
     struct ip6_hdr header;
 
-    /*
-     * http://www.pdbuchan.com/rawsock/rawsock.html
-     * Table 9:	sd = socket (PF_PACKET, SOCK_RAW, htons (ETH_P_ALL));
-     * icmp6_ll.c
-     *
-     */
-
     // IPv6 version (4 bits), Traffic class (8 bits), Flow label (20 bits)
     header.ip6_flow = htonl((6 << 28) | (0 << 20) | 0);
 

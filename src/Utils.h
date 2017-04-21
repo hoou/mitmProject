@@ -59,6 +59,7 @@ public:
     static string formatMacAddress(mac_addr address, MacAddressFormat format);
 
     /**
+     * Inspired by:
      * http://stackoverflow.com/a/20553913/4619907
      *
      * @param address
@@ -69,6 +70,9 @@ public:
     static bool isZeroMacAddress(mac_addr address);
 
     /**
+     * NOT MY CODE!!!!
+     *
+     * source:
      * https://codereview.stackexchange.com/a/78539
      *
      * @param data

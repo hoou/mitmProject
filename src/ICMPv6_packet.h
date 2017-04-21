@@ -60,6 +60,9 @@ private:
     /**
      * Build IPv6 ICMP pseudo-header and call checksum function (Section 8.1 of RFC 2460).
      *
+     * NOT MY CODE!!!! - just slightly modified
+     *
+     * source:
      * http://www.pdbuchan.com/rawsock/rawsock.html
      * Table 9:	sd = socket (PF_PACKET, SOCK_RAW, htons (ETH_P_ALL));
      * icmp6_ll.c
@@ -76,6 +79,9 @@ private:
      * Computing the internet checksum (RFC 1071).
      * Note that the internet checksum does not preclude collisions.
      *
+     * NOT MY CODE!!!!
+     *
+     * source:
      * http://www.pdbuchan.com/rawsock/rawsock.html
      * Table 9:	sd = socket (PF_PACKET, SOCK_RAW, htons (ETH_P_ALL));
      * icmp6_ll.c
